@@ -695,7 +695,7 @@ async function cargarTrabajos(){
   const estilos = ["wt1","wt2","wt3","wt4","wt5","wt6"];
 
   filas.forEach((fila,i)=>{
-    const columnas = fila.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+   const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
     const categoria = columnas?.[0]?.replaceAll('"',"") || "";
     const titulo    = columnas?.[1]?.replaceAll('"',"") || "";
