@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AMB CHACO CONSTRUCCIONES — Portfolio Profesional</title>
+<meta name="description" content="Empresa de construcciones y refacciones en Resistencia Chaco. Electricidad, plomería, remodelaciones y obras profesionales.">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet">
 <style>
 
@@ -220,7 +221,8 @@ h1 .accent { color: var(--yellow); }
 /* ══════════════════════════════════
    SECTION BASE
 ══════════════════════════════════ */
-.sec { padding: clamp(3rem,8vw,6.5rem) var(--pad); }
+p { line-height: 1.6; }
+.sec { padding: 70px var(--pad); }
 .sec-alt { background: var(--bg-soft); }
 
 /* ══════════════════════════════════
@@ -278,7 +280,7 @@ h1 .accent { color: var(--yellow); }
 
 .work-thumb {
   height: clamp(150px,20vw,230px); display: flex; align-items: center; justify-content: center;
-  font-size: clamp(2.2rem,5vw,4rem);
+  font-size: clamp(2.2rem,5vw,4rem); overflow: hidden;
 }
    .work-thumb img {
   width:100%;
@@ -297,9 +299,10 @@ h1 .accent { color: var(--yellow); }
 .wt5 { background: linear-gradient(135deg,#1a1500,#2a2000); }
 .wt6 { background: linear-gradient(135deg,#151a10,#202a10); }
 
-.work-info { padding: clamp(0.8rem,2vw,1.25rem) clamp(0.9rem,2.5vw,1.5rem); }
+.work-info { padding: clamp(0.8rem,2vw,1.25rem) clamp(0.9rem,2.5vw,1.5rem); text-align: center; }
 .work-tag { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--yellow); font-family: 'Barlow Condensed', sans-serif; margin-bottom: 0.3rem; }
 .work-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(0.88rem,2vw,1.05rem); font-weight: 700; color: var(--light); text-transform: uppercase; letter-spacing: 0.5px; }
+.work-desc { font-size: 0.78rem; color: var(--yellow); opacity: 0.75; margin-top: 0.25rem; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 1px; text-transform: uppercase; }
 
 /* ══════════════════════════════════
    SOBRE MÍ
@@ -399,6 +402,9 @@ h1 .accent { color: var(--yellow); }
   text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;
   animation: pulse 2.5s infinite;
 }
+.wa-float {
+  border: 3px solid rgba(255,255,255,0.2);
+}
 .wa-float:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,211,102,0.55); }
    .wa-float {
   box-shadow: 0 8px 25px rgba(37,211,102,0.4);
@@ -471,10 +477,11 @@ footer {
   <div class="hero-bg" aria-hidden="true"></div>
   <div class="hero-content">
     <div class="hero-badge">Electricista Matriculado · Construcciones</div>
-    <h1><br>CON <span class="accent">VOLTAJE</span><br>Y PRECISIÓN</h1>
-    <p class="hero-sub">Instalaciones eléctricas residenciales, comerciales e industriales. Construcciones y refacciones. Trabajo garantizado y seguro en Resistencia, Chaco.</p>
+    <h1>CONSTRUCCIONES Y<br>REFACCIONES <span class="accent">PROFESIONALES</span><br>EN CHACO</h1>
+    <p class="hero-sub">Transformamos espacios con calidad, cumplimiento y confianza.</p>
+    <p style="opacity:.8; margin-top:10px;">Más de 20 proyectos realizados en Resistencia y alrededores</p>
     <div class="hero-actions">
-      <a href="#contacto" class="btn btn-primary">⚡ Pedir Presupuesto</a>
+      <a href="#contacto" class="btn btn-primary">⚡ Pedí tu presupuesto gratis</a>
       <a href="#trabajos" class="btn btn-outline">Ver Trabajos →</a>
     </div>
     <div class="hero-stats">
@@ -578,9 +585,9 @@ footer {
         <div class="ci-icon">📞</div>
         <div class="ci-text"><strong>Teléfono / WhatsApp</strong><span>+54 362 XXX-XXXX</span></div>
       </a>
-      <a href="mailto:tumail@gmail.com" class="contact-item">
+      <a href="/cdn-cgi/l/email-protection#6d1918000c04012d0a000c0401430e0200" class="contact-item">
         <div class="ci-icon">✉️</div>
-        <div class="ci-text"><strong>Email</strong><span>tumail@gmail.com</span></div>
+        <div class="ci-text"><strong>Email</strong><span><span class="__cf_email__" data-cfemail="a8dcddc5c9c1c4e8cfc5c9c1c486cbc7c5">[email&#160;protected]</span></span></div>
       </a>
       <div class="contact-item">
         <div class="ci-icon">📍</div>
@@ -632,6 +639,15 @@ footer {
   </div>
 </section>
 
+<!-- CTA FINAL -->
+<section class="sec" style="text-align:center; background: var(--bg-soft);">
+  <h2 style="text-align:center; font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,6vw,3.5rem); letter-spacing:2px;">¿Necesitás un presupuesto?</h2>
+  <p style="text-align:center; margin-top:0.75rem; font-size:1.1rem; color:var(--muted);">Escribinos y te respondemos en el día.</p>
+  <div style="margin-top:1.5rem;">
+    <a href="#contacto" class="btn btn-primary">⚡ Pedí tu presupuesto gratis</a>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
   <p class="footer-text">© 2025 <span>ElectroOficio</span> — Todos los derechos reservados.</p>
@@ -643,7 +659,7 @@ footer {
   </ul>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ── Hamburger ── */
 const hamburger = document.getElementById('hamburger');
 const navLinks   = document.getElementById('nav-links');
@@ -722,18 +738,4 @@ async function cargarTrabajos(){
     contenedor.innerHTML += `
       <div class="work-card">
        <div class="work-thumb">
-  <img src="${imagen}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
-</div>
-        <div class="work-info">
-          <div class="work-tag">${categoria}</div>
-          <div class="work-title">${titulo}</div>
-        </div>
-      </div>
-    `;
-  });
-}
-
-cargarTrabajos();
-</script>
-</body>
-</html>
+  <img src="${imagen}" loading="lazy" style="width:100%; height:100%; object-fit:
