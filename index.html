@@ -682,9 +682,9 @@ footer {
           <div class="ci-icon">📞</div>
           <div class="ci-text"><strong>Teléfono / WhatsApp</strong><span>+54 362 XXX-XXXX</span></div>
         </a>
-        <a href="mailto:ambchaco@gmail.com" class="contact-item">
+        <a href="/cdn-cgi/l/email-protection#b4d5d9d6d7dcd5d7dbf4d3d9d5ddd89ad7dbd9" class="contact-item">
           <div class="ci-icon">✉️</div>
-          <div class="ci-text"><strong>Email</strong><span>ambchaco@gmail.com</span></div>
+          <div class="ci-text"><strong>Email</strong><span><span class="__cf_email__" data-cfemail="7a1b171819121b19153a1d171b131654191517">[email&#160;protected]</span></span></div>
         </a>
         <div class="contact-item">
           <div class="ci-icon">📍</div>
@@ -771,12 +771,68 @@ footer {
 
 <script>
 /* ════════════════════════════════════════════════════════════
-   ▶  ÚNICA LÍNEA QUE TENÉS QUE EDITAR
-      Pegá el ID de tu Google Sheet entre las comillas.
-      Ejemplo: const SHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms';
-   ════════════════════════════════════════════════════════════ */
-const SHEET_ID = '1ICTrdZOXcAWOaJJn_f8CFh5M0o-kHaphHoHG_Y9ROi8';
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Trabajos`;
+   ▶  TRABAJOS — Sistema Cloudinary
+   ════════════════════════════════════════════════════════════
+   Para agregar un trabajo nuevo, copiá el bloque de abajo
+   y pegalo en el array. La imagen es la URL de Cloudinary.
+
+   Ejemplo de URL de Cloudinary:
+   https://res.cloudinary.com/TU_CLOUD/image/upload/v123456/trabajo1.jpg
+   ═══════════════════════════════════════════════════════════ */
+
+const trabajos = [
+  {
+    titulo: "Tablero Residencial",
+    categoria: "Electricidad",
+    localizacion: "Resistencia, 2024",
+    descripcion: "Renovación completa del tablero eléctrico con llaves termomagnéticas y diferencial de 25A. Materiales de primera calidad.",
+    imagen: ""  // Reemplazá con tu URL de Cloudinary
+  },
+  {
+    titulo: "Remodelación Cocina",
+    categoria: "Construcción",
+    localizacion: "Barranqueras, 2024",
+    descripcion: "Remodelación integral: azulejos nuevos, mesada de granito, pintura y carpintería. Terminaciones de primera.",
+    imagen: ""
+  },
+  {
+    titulo: "Sistema LED Exterior",
+    categoria: "Iluminación",
+    localizacion: "Fontana, 2023",
+    descripcion: "Diseño e instalación de iluminación LED perimetral para vivienda particular. Ahorro del 60% en consumo eléctrico.",
+    imagen: ""
+  },
+  {
+    titulo: "Tablero Trifásico Industrial",
+    categoria: "Industrial",
+    localizacion: "Resistencia, 2023",
+    descripcion: "Armado e instalación de tablero trifásico 3x40A para taller metalmecánico. Incluye protecciones y puesta a tierra.",
+    imagen: ""
+  },
+  {
+    titulo: "Instalación Sanitaria",
+    categoria: "Plomería",
+    localizacion: "Resistencia, 2024",
+    descripcion: "Instalación completa de red de agua fría y caliente para local comercial. Cañerías nuevas y artefactos.",
+    imagen: ""
+  },
+  {
+    titulo: "Habilitación Comercial",
+    categoria: "Certificación",
+    localizacion: "Gran Chaco, 2024",
+    descripcion: "Planos eléctricos, memoria descriptiva y certificado de aptitud para habilitación municipal. Aprobado en primera presentación.",
+    imagen: ""
+  },
+  // ── Agregá más trabajos acá ──
+  // {
+  //   titulo: "",
+  //   categoria: "",     // Electricidad | Construcción | Iluminación | Industrial | Plomería | Certificación | Mantenimiento
+  //   localizacion: "",  // Ejemplo: "Resistencia, 2025"
+  //   descripcion: "",
+  //   imagen: ""         // URL de Cloudinary
+  // },
+];
+
 /* ── Hamburger ── */
 const hamburger = document.getElementById('hamburger');
 const navLinks  = document.getElementById('nav-links');
@@ -805,7 +861,7 @@ function openLightbox(w) {
   lbDesc.textContent  = w.descripcion || '';
   lbImgWrap.innerHTML = w.imagen
     ? `<img src="${w.imagen}" alt="${w.titulo}" loading="lazy">`
-    : `<div class="lightbox-no-img">🏗️</div>`;
+    : `<div class="lightbox-no-img">${iconFor(w.categoria)}</div>`;
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -816,52 +872,25 @@ function closeLightbox() {
 document.getElementById('lb-close').addEventListener('click', closeLightbox);
 lb.addEventListener('click', e => { if (e.target === lb) closeLightbox(); });
 
-/* ── Parseo de Google Drive URLs ── */
-function driveImgUrl(raw) {
-  if (!raw) return '';
-  raw = raw.trim();
-  let m = raw.match(/\/file\/d\/([^\/\?]+)/);
-  if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`;
-  m = raw.match(/[?&]id=([^&]+)/);
-  if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`;
-  return raw; // URL directa
-}
-
-/* ── Parseo de CSV (maneja comas dentro de comillas) ── */
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  if (lines.length < 2) return [];
-  const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim().toLowerCase());
-  return lines.slice(1).map(line => {
-    const cols = []; let cur='', inQ=false;
-    for (let i=0; i<line.length; i++) {
-      const ch = line[i];
-      if (ch==='"') { inQ=!inQ; }
-      else if (ch===',' && !inQ) { cols.push(cur); cur=''; }
-      else { cur+=ch; }
-    }
-    cols.push(cur);
-    const obj = {};
-    headers.forEach((h,i) => { obj[h] = (cols[i]||'').replace(/^"|"$/g,'').trim(); });
-    obj.imagen = driveImgUrl(obj.imagen);
-    return obj;
-  }).filter(w => w.titulo);
-}
-
 /* ── Íconos por categoría ── */
-const catIcons = { electricidad:'🔌', 'construcción':'🏗️', construccion:'🏗️', mantenimiento:'🔧', 'iluminación':'💡', iluminacion:'💡', industrial:'🏭', comercial:'🏭', 'certificación':'📋', certificacion:'📋', 'plomería':'🚿', plomeria:'🚿' };
+const catIcons = {
+  electricidad: '🔌', 'construcción': '🏗️', construccion: '🏗️',
+  mantenimiento: '🔧', 'iluminación': '💡', iluminacion: '💡',
+  industrial: '🏭', comercial: '🏭', 'certificación': '📋',
+  certificacion: '📋', 'plomería': '🚿', plomeria: '🚿'
+};
 const iconFor = cat => catIcons[(cat||'').toLowerCase()] || '⚡';
 
 /* ── Estado ── */
-let allWorks = [], activeFilter = 'Todos';
+let allWorks = trabajos, activeFilter = 'Todos';
 const container   = document.getElementById('works-container');
 const filtersWrap = document.getElementById('works-filters');
 
 /* ── Render filtros ── */
 function renderFilters() {
-  const cats = ['Todos', ...new Set(allWorks.map(w=>w.categoria).filter(Boolean))];
+  const cats = ['Todos', ...new Set(allWorks.map(w => w.categoria).filter(Boolean))];
   filtersWrap.innerHTML = cats.map(c =>
-    `<button class="filter-btn${c===activeFilter?' active':''}" data-cat="${c}">${c}</button>`
+    `<button class="filter-btn${c === activeFilter ? ' active' : ''}" data-cat="${c}">${c}</button>`
   ).join('');
   filtersWrap.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -873,14 +902,14 @@ function renderFilters() {
 
 /* ── Render tarjetas ── */
 function renderCards() {
-  const list = activeFilter==='Todos' ? allWorks : allWorks.filter(w => w.categoria===activeFilter);
+  const list = activeFilter === 'Todos' ? allWorks : allWorks.filter(w => w.categoria === activeFilter);
   if (!list.length) {
     container.innerHTML = `<div class="works-empty">No hay trabajos en esta categoría todavía.</div>`;
     return;
   }
-  container.innerHTML = list.map((w,i) => `
+  container.innerHTML = list.map((w, i) => `
     <div class="work-card" data-idx="${allWorks.indexOf(w)}"
-         style="animation:cardIn 0.45s ${i*0.06}s ease both;">
+         style="animation:cardIn 0.45s ${i * 0.06}s ease both;">
       <div class="work-thumb">
         ${w.imagen
           ? `<img src="${w.imagen}" alt="${w.titulo}" loading="lazy"
@@ -890,7 +919,7 @@ function renderCards() {
         }
       </div>
       <div class="work-info">
-        <div class="work-tag">${w.categoria||'Trabajo'}</div>
+        <div class="work-tag">${w.categoria || 'Trabajo'}</div>
         <div class="work-title">${w.titulo}</div>
         ${w.localizacion ? `<div class="work-location">📍 ${w.localizacion}</div>` : ''}
       </div>
@@ -902,41 +931,9 @@ function renderCards() {
   });
 }
 
-/* ── Carga desde Google Sheets (o demo si no hay ID) ── */
-async function loadWorks() {
-  if (SHEET_ID === 'TU_SHEET_ID_AQUI') {
-    // Datos de ejemplo mientras no está configurado el Sheet
-    allWorks = [
-      { titulo:'Tablero Residencial',    categoria:'Electricidad',   localizacion:'Resistencia, 2024', descripcion:'Renovación completa del tablero eléctrico con llaves termomagnéticas y diferencial de 25A.', imagen:'' },
-      { titulo:'Remodelación Cocina',    categoria:'Construcción',   localizacion:'Barranqueras, 2024', descripcion:'Remodelación integral: azulejos nuevos, mesada de granito, pintura y carpintería.', imagen:'' },
-      { titulo:'Sistema LED Exterior',   categoria:'Iluminación',    localizacion:'Fontana, 2023', descripcion:'Diseño e instalación de iluminación LED perimetral para vivienda particular. Ahorro del 60% en consumo.', imagen:'' },
-      { titulo:'Tablero Trifásico',      categoria:'Industrial',     localizacion:'Resistencia, 2023', descripcion:'Armado e instalación de tablero trifásico 3x40A para taller metalmecánico.', imagen:'' },
-      { titulo:'Instalación Sanitaria',  categoria:'Plomería',       localizacion:'Resistencia, 2024', descripcion:'Instalación completa de red de agua fría y caliente para local comercial.', imagen:'' },
-      { titulo:'Habilitación Comercial', categoria:'Certificación',  localizacion:'Gran Chaco, 2024', descripcion:'Planos eléctricos, memoria descriptiva y certificado de aptitud para habilitación municipal.', imagen:'' },
-    ];
-    renderFilters(); renderCards(); return;
-  }
-
-  try {
-    const res = await fetch(SHEET_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    allWorks = parseCSV(text);
-    if (!allWorks.length) throw new Error('Sin filas');
-    renderFilters(); renderCards();
-  } catch(err) {
-    console.error('Error al cargar trabajos:', err);
-    container.innerHTML = `
-      <div class="works-error">
-        <p style="font-size:1.5rem;margin-bottom:0.5rem">⚠️</p>
-        <p>No se pudieron cargar los trabajos.<br>
-        Verificá que el Google Sheet esté publicado en la web.<br>
-        <small style="opacity:.6">Abrí la consola para ver el error exacto.</small></p>
-      </div>`;
-  }
-}
-
-loadWorks();
+/* ── Iniciar ── */
+renderFilters();
+renderCards();
 
 /* ── Formulario de contacto ── */
 document.getElementById('contact-form').addEventListener('submit', function(e) {
@@ -946,21 +943,24 @@ document.getElementById('contact-form').addEventListener('submit', function(e) {
   const msg    = document.getElementById('form-msg');
   if (!nombre || !email) {
     msg.textContent = '⚠ Por favor completá nombre y email.';
-    msg.style.display='block'; msg.style.color='#f87171'; return;
+    msg.style.display = 'block'; msg.style.color = '#f87171'; return;
   }
   msg.textContent = '✅ ¡Consulta enviada! Te respondemos pronto.';
-  msg.style.color = 'var(--yellow)'; msg.style.display='block';
+  msg.style.color = 'var(--yellow)'; msg.style.display = 'block';
   this.reset();
-  setTimeout(() => { msg.style.display='none'; }, 5000);
+  setTimeout(() => { msg.style.display = 'none'; }, 5000);
 });
 
 /* ── Scroll reveal ── */
 const observer = new IntersectionObserver(
-  entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }),
-  { threshold:0.1, rootMargin:'0px 0px -40px 0px' }
+  entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }),
+  { threshold: 0.12 }
 );
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
 </script>
 </body>
+</html>
+
 </html>
 
