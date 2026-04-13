@@ -240,10 +240,19 @@ h1 .accent { color: var(--yellow); }
 .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.8rem, 5vw, 3rem); color: var(--yellow); line-height: 1; }
 .stat-label { font-size: clamp(0.65rem, 1.5vw, 0.78rem); color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 0.15rem; }
 .hero-deco {
-  position: absolute; right: 2%; top: 50%; transform: translateY(-50%);
-  font-family: 'Bebas Neue', sans-serif; font-size: clamp(6rem, 20vw, 18rem);
-  opacity: 0.03; pointer-events: none; user-select: none; line-height: 1;
+  position: absolute;
+  right: 2%;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  user-select: none;
   animation: fadeIn 1.2s ease both;
+}
+.hero-deco img {
+  width: clamp(180px, 25vw, 450px);
+  height: auto;
+  object-fit: contain;
+  opacity: 0.08; /* efecto fondo */
 }
 @media (max-width: 500px) { .hero-deco { display: none; } }
 
@@ -617,7 +626,9 @@ footer {
       <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Garantizados</div></div>
     </div>
   </div>
-  <div class="hero-deco" aria-hidden="true">⚡</div>
+  <div class="hero-deco" aria-hidden="true">
+  <img src="favikon.png" alt="Logo">
+</div>
 </section>
 
 <!-- SERVICIOS -->
