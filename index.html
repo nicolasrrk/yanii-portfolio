@@ -1301,6 +1301,7 @@ async function cargarTrabajos() {
       .order('created_at', { ascending: false });
 
     const dbWorks = (error || !data) ? [] : data.map(r => ({
+      id: r.id,
       titulo: r.titulo,
       categoria: r.categoria,
       localizacion: r.localizacion,
