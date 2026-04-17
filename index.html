@@ -9,6 +9,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet">
 <style>
 
+/* ══════════════════════════════════<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favikon.png" type="image/png">
+<title>AMB CHACO CONSTRUCCIONES — Portfolio Profesional</title>
+<meta name="description" content="Empresa de construcciones y refacciones en Resistencia Chaco. Electricidad, plomería, remodelaciones y obras profesionales.">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet">
+<style>
+
 /* ══════════════════════════════════
    VARIABLES & RESET
 ══════════════════════════════════ */
@@ -738,6 +749,7 @@ footer {
   animation: spin 0.7s linear infinite;
   display: none;
 }
+
 /* ══ Botones admin en tarjetas ══ */
 .work-card-admin-btns {
   display: none;
@@ -876,13 +888,13 @@ body.admin-logged .work-card-admin-btns { display: flex; }
       </div>
       <img class="file-preview" id="aw-preview" alt="Vista previa">
       <div class="add-work-msg" id="aw-msg"></div>
-<div class="aw-form-actions">
-  <button class="btn btn-primary" id="aw-submit-btn" style="gap:0.5rem;">
-    <span id="aw-btn-text">Publicar Trabajo</span>
-    <span class="btn-spinner" id="aw-spinner"></span>
-  </button>
-  <button id="aw-cancel-edit" type="button">✕ Cancelar edición</button>
-</div>
+      <div class="aw-form-actions">
+        <button class="btn btn-primary" id="aw-submit-btn" style="gap:0.5rem;">
+          <span id="aw-btn-text">Publicar Trabajo</span>
+          <span class="btn-spinner" id="aw-spinner"></span>
+        </button>
+        <button id="aw-cancel-edit" type="button">✕ Cancelar edición</button>
+      </div>
     </div>
   </div>
   <div class="works-filters reveal" id="works-filters"></div>
@@ -1201,11 +1213,27 @@ function renderCards() {
         <div class="work-title">${w.titulo}</div>
         ${w.localizacion ? `<div class="work-location">📍 ${w.localizacion}</div>` : ''}
       </div>
+      ${w._fromDB ? `
+      <div class="work-card-admin-btns">
+        <button class="btn-edit"   data-idx="${allWorks.indexOf(w)}">✏️ Editar</button>
+        <button class="btn-delete" data-idx="${allWorks.indexOf(w)}">🗑 Eliminar</button>
+      </div>` : ''}
     </div>
   `).join('');
 
   container.querySelectorAll('.work-card').forEach(card => {
-    card.addEventListener('click', () => openLightbox(allWorks[+card.dataset.idx]));
+    card.addEventListener('click', e => {
+      if (e.target.closest('.work-card-admin-btns')) return;
+      openLightbox(allWorks[+card.dataset.idx]);
+    });
+  });
+
+  container.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); startEdit(allWorks[+btn.dataset.idx]); });
+  });
+
+  container.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); deleteWork(allWorks[+btn.dataset.idx]); });
   });
 }
 
@@ -1218,11 +1246,13 @@ async function cargarTrabajos() {
       .order('created_at', { ascending: false });
 
     const dbWorks = (error || !data) ? [] : data.map(r => ({
+      id: r.id,
       titulo: r.titulo,
       categoria: r.categoria,
       localizacion: r.localizacion,
       descripcion: r.descripcion,
-      imagen: r.imagen_url || ''
+      imagen: r.imagen_url || '',
+      _fromDB: true
     }));
 
     allWorks = [...dbWorks, ...trabajosEstaticos];
@@ -1290,10 +1320,13 @@ function updateNavBtn() {
     navAdminBtn.textContent = '✅ Admin';
     navAdminBtn.classList.add('logged');
     addWorkPanel.classList.add('visible');
+    document.body.classList.add('admin-logged');
   } else {
     navAdminBtn.textContent = '🔑 Admin';
     navAdminBtn.classList.remove('logged');
     addWorkPanel.classList.remove('visible');
+    document.body.classList.remove('admin-logged');
+    if (typeof cancelEdit === 'function') cancelEdit();
   }
 }
 
@@ -1513,85 +1546,8 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
    ▶  EDITAR / ELIMINAR TRABAJOS
    ════════════════════════════════════════════════════════════ */
 
-/* Estado de edición */
 let editingWorkId = null;
-
 const awCancelEdit = document.getElementById('aw-cancel-edit');
-
-/* ── Guardar el id de Supabase en allWorks ── */
-// IMPORTANTE: reemplazamos cargarTrabajos para incluir el id
-const _cargarTrabajosOriginal = cargarTrabajos;
-async function cargarTrabajos() {
-  try {
-    const { data, error } = await supabase
-      .from('trabajos')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    const dbWorks = (error || !data) ? [] : data.map(r => ({
-      id: r.id,                      // ← guardamos el id
-      titulo: r.titulo,
-      categoria: r.categoria,
-      localizacion: r.localizacion,
-      descripcion: r.descripcion,
-      imagen: r.imagen_url || '',
-      _fromDB: true                  // ← marcamos que vino de la BD
-    }));
-
-    allWorks = [...dbWorks, ...trabajosEstaticos];
-  } catch {
-    allWorks = [...trabajosEstaticos];
-  }
-  renderFilters();
-  renderCards();
-}
-
-/* ── Render tarjetas con botones admin ── */
-function renderCards() {
-  const list = activeFilter === 'Todos' ? allWorks : allWorks.filter(w => w.categoria === activeFilter);
-  if (!list.length) {
-    container.innerHTML = `<div class="works-empty">No hay trabajos en esta categoría todavía.</div>`;
-    return;
-  }
-  container.innerHTML = list.map((w, i) => `
-    <div class="work-card" data-idx="${allWorks.indexOf(w)}"
-         style="animation:cardIn 0.45s ${i * 0.06}s ease both;">
-      <div class="work-thumb">
-        ${w.imagen
-          ? `<img src="${w.imagen}" alt="${w.titulo}" loading="lazy"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-             <div class="work-thumb-placeholder" style="display:none">${iconFor(w.categoria)}</div>`
-          : `<div class="work-thumb-placeholder">${iconFor(w.categoria)}</div>`
-        }
-      </div>
-      <div class="work-info">
-        <div class="work-tag">${w.categoria || 'Trabajo'}</div>
-        <div class="work-title">${w.titulo}</div>
-        ${w.localizacion ? `<div class="work-location">📍 ${w.localizacion}</div>` : ''}
-      </div>
-      ${w._fromDB ? `
-      <div class="work-card-admin-btns">
-        <button class="btn-edit"   data-idx="${allWorks.indexOf(w)}">✏️ Editar</button>
-        <button class="btn-delete" data-idx="${allWorks.indexOf(w)}">🗑 Eliminar</button>
-      </div>` : ''}
-    </div>
-  `).join('');
-
-  container.querySelectorAll('.work-card').forEach(card => {
-    card.addEventListener('click', e => {
-      if (e.target.closest('.work-card-admin-btns')) return; // no abrir lightbox al clickear botones
-      openLightbox(allWorks[+card.dataset.idx]);
-    });
-  });
-
-  container.querySelectorAll('.btn-edit').forEach(btn => {
-    btn.addEventListener('click', e => { e.stopPropagation(); startEdit(allWorks[+btn.dataset.idx]); });
-  });
-
-  container.querySelectorAll('.btn-delete').forEach(btn => {
-    btn.addEventListener('click', e => { e.stopPropagation(); deleteWork(allWorks[+btn.dataset.idx]); });
-  });
-}
 
 /* ── Modo edición: pre-llenar formulario ── */
 function startEdit(w) {
@@ -1614,7 +1570,6 @@ function startEdit(w) {
   awMsg.className = 'add-work-msg';
   awMsg.textContent = '';
 
-  // Scroll al formulario
   document.getElementById('add-work-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -1640,7 +1595,6 @@ awCancelEdit.addEventListener('click', cancelEdit);
 async function deleteWork(w) {
   if (!w._fromDB || !w.id) return;
   if (!confirm(`¿Eliminar "${w.titulo}"? Esta acción no se puede deshacer.`)) return;
-
   try {
     const { error } = await supabase.from('trabajos').delete().eq('id', w.id);
     if (error) throw error;
@@ -1650,12 +1604,11 @@ async function deleteWork(w) {
   }
 }
 
-/* ── Interceptar el submit para diferenciar crear vs actualizar ── */
-const _originalSubmitHandler = awSubmitBtn.onclick; // por si acaso
+/* ── Interceptar submit para manejar actualización ── */
 awSubmitBtn.addEventListener('click', async (e) => {
-  if (!editingWorkId) return; // si no hay edición activa, el listener original se encarga
+  if (!editingWorkId) return; // si no hay edición activa, el listener de agregar se encarga
 
-  e.stopImmediatePropagation(); // evitar que corra el listener de agregar
+  e.stopImmediatePropagation();
 
   if (!currentUser) {
     awMsg.className = 'add-work-msg error';
@@ -1683,7 +1636,6 @@ awSubmitBtn.addEventListener('click', async (e) => {
   try {
     let updateData = { titulo, categoria, localizacion, descripcion };
 
-    /* Solo subir imagen si el admin eligió una nueva */
     if (file) {
       const ext      = file.name.split('.').pop();
       const fileName = `trabajo_${Date.now()}.${ext}`;
@@ -1705,7 +1657,6 @@ awSubmitBtn.addEventListener('click', async (e) => {
 
     awMsg.className = 'add-work-msg success';
     awMsg.textContent = '✅ ¡Trabajo actualizado correctamente!';
-
     cancelEdit();
     await cargarTrabajos();
 
@@ -1716,19 +1667,12 @@ awSubmitBtn.addEventListener('click', async (e) => {
 
   awSpinner.style.display = 'none';
   awSubmitBtn.disabled = false;
-}, true); // useCapture=true para correr antes del listener original
+}, true); // useCapture=true para ejecutar antes del listener de agregar
 
-/* ── Mostrar/ocultar botones admin según sesión ── */
-const _updateNavBtnOriginal = updateNavBtn;
-function updateNavBtn() {
-  _updateNavBtnOriginal();
-  if (currentUser) {
-    document.body.classList.add('admin-logged');
-  } else {
-    document.body.classList.remove('admin-logged');
-    cancelEdit(); // limpiar si cierra sesión mientras editaba
-  }
-}   
+
+
+
+
 </script>
 </body>
 </html>
