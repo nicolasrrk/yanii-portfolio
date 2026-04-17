@@ -7,6 +7,10 @@
 <title>AMB CHACO CONSTRUCCIONES — Portfolio Profesional</title>
 <meta name="description" content="Empresa de construcciones y refacciones en Resistencia Chaco. Electricidad, plomería, remodelaciones y obras profesionales.">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet">
+
+<!-- SUPABASE SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 
 /* ══════════════════════════════════
@@ -17,7 +21,7 @@
   --blue-dim: #162060;
   --sky: #29b6f6;
   --sky-dim: #1a8fd1;
-  --yellow: #29b6f6;
+  --yellow: #29b6f6;    /* acento principal = azul cielo (mismo que --sky) */
   --yellow-dim: #1a8fd1;
   --dark: #f8faff;
   --dark2: #f4f6fb;
@@ -143,6 +147,64 @@ nav {
 }
 .nav-cta:hover { background: #162060 !important; color: #fff !important; }
 
+/* ── Auth Nav Button ── */
+.nav-auth-area {
+  display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; z-index: 101;
+}
+
+.nav-login-btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: transparent; color: var(--blue);
+  border: 1.5px solid rgba(30,42,122,0.3);
+  padding: 0.35rem 0.9rem; border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.82rem; letter-spacing: 1.5px; text-transform: uppercase;
+  font-weight: 700; cursor: pointer; transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-login-btn:hover { border-color: var(--sky); color: var(--sky-dim); }
+
+.nav-user-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: #1e2a7a; color: #fff;
+  padding: 0.32rem 0.85rem; border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase;
+  font-weight: 700; cursor: pointer; border: none; transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.nav-user-btn:hover { background: var(--blue-dim); }
+.nav-user-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--sky); display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
+}
+
+.nav-user-dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: #fff; border: 1px solid rgba(30,42,122,0.15);
+  border-radius: 8px; box-shadow: 0 12px 36px rgba(30,42,122,0.18);
+  min-width: 160px; padding: 0.4rem 0; z-index: 200;
+  opacity: 0; pointer-events: none;
+  transform: translateY(-6px); transition: all 0.2s;
+}
+.nav-user-dropdown.open { opacity: 1; pointer-events: auto; transform: none; }
+.nav-user-dropdown a,
+.nav-user-dropdown button {
+  display: block; width: 100%;
+  padding: 0.6rem 1.1rem; text-align: left;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.82rem; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--light); background: none; border: none; cursor: pointer;
+  text-decoration: none; transition: background 0.15s, color 0.15s;
+}
+.nav-user-dropdown a:hover,
+.nav-user-dropdown button:hover { background: var(--dark3); color: var(--blue); }
+.nav-user-dropdown .logout-btn { color: #e53e3e; }
+.nav-user-dropdown .logout-btn:hover { background: #fff5f5; }
+.nav-user-dropdown hr { border: none; border-top: 1px solid rgba(30,42,122,0.1); margin: 0.3rem 0; }
+
 .hamburger {
   display: none; flex-direction: column; gap: 5px;
   cursor: pointer; background: none; border: none;
@@ -183,8 +245,229 @@ nav {
   .nav-links li:first-child { border-top: 1px solid rgba(30,42,122,0.1); }
   .nav-links a { display: block; padding: 1rem 0; font-size: 1.1rem; letter-spacing: 2px; text-align: center; color: #1a1a2e; }
   .nav-cta { background: transparent !important; color: var(--sky-dim) !important; border-radius: 0 !important; padding: 1rem 0 !important; }
+  /* mobile: auth area goes before hamburger */
+  .nav-auth-area { order: 2; }
+  .hamburger { order: 3; }
 }
 body.menu-open { overflow: hidden; }
+
+/* ══════════════════════════════════
+   AUTH MODAL
+══════════════════════════════════ */
+.auth-modal-overlay {
+  position: fixed; inset: 0; z-index: 3000;
+  background: rgba(20,30,80,0.75);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+  backdrop-filter: blur(8px);
+}
+.auth-modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+.auth-modal {
+  background: #fff;
+  border: 1px solid rgba(30,42,122,0.15);
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(20,30,80,0.3);
+  width: 100%; max-width: 420px;
+  transform: scale(0.94) translateY(10px);
+  transition: transform 0.3s ease;
+  overflow: hidden;
+}
+.auth-modal-overlay.open .auth-modal { transform: scale(1) translateY(0); }
+
+.auth-modal-header {
+  background: linear-gradient(135deg, #1e2a7a 0%, #162060 100%);
+  padding: 1.75rem 2rem 1.4rem;
+  position: relative;
+}
+.auth-modal-close {
+  position: absolute; top: 0.9rem; right: 0.9rem;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+  color: #fff; width: 30px; height: 30px; border-radius: 50%;
+  font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.auth-modal-close:hover { background: rgba(255,255,255,0.25); }
+.auth-modal-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem; letter-spacing: 2px; color: #fff;
+}
+.auth-modal-logo span { color: var(--sky); }
+.auth-modal-tagline {
+  margin-top: 0.3rem;
+  font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.6); font-family: 'Barlow Condensed', sans-serif;
+}
+
+/* Tabs */
+.auth-tabs {
+  display: flex; margin: 0; border-bottom: 1px solid rgba(30,42,122,0.12);
+  background: var(--dark2);
+}
+.auth-tab {
+  flex: 1; padding: 0.85rem; background: none; border: none;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.82rem; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); cursor: pointer; transition: all 0.2s;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.auth-tab.active { color: var(--blue); border-bottom-color: var(--blue); background: #fff; font-weight: 700; }
+
+.auth-body { padding: 1.75rem 2rem 2rem; }
+.auth-panel { display: none; flex-direction: column; gap: 1rem; }
+.auth-panel.active { display: flex; }
+
+.auth-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.auth-field label {
+  font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); font-family: 'Barlow Condensed', sans-serif;
+}
+.auth-field input {
+  background: var(--dark2); border: 1.5px solid rgba(30,42,122,0.18);
+  border-radius: 8px; padding: 0.72rem 1rem;
+  font-family: 'Barlow', sans-serif; font-size: 0.92rem; color: var(--light);
+  transition: border-color 0.2s, box-shadow 0.2s; outline: none; width: 100%;
+}
+.auth-field input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(41,182,246,0.15); background: #fff; }
+
+.auth-submit-btn {
+  width: 100%; padding: 0.85rem;
+  background: #1e2a7a; color: #fff;
+  border: none; border-radius: 8px; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.92rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 700;
+  transition: all 0.2s; margin-top: 0.3rem;
+  box-shadow: 0 4px 16px rgba(30,42,122,0.25);
+}
+.auth-submit-btn:hover { background: var(--blue-dim); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,42,122,0.3); }
+.auth-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.auth-msg {
+  font-size: 0.82rem; padding: 0.6rem 0.9rem; border-radius: 6px;
+  display: none; line-height: 1.5;
+  font-family: 'Barlow', sans-serif;
+}
+.auth-msg.error { background: #fff5f5; color: #c53030; border: 1px solid #fed7d7; display: block; }
+.auth-msg.success { background: #f0fff4; color: #276749; border: 1px solid #9ae6b4; display: block; }
+
+/* ══════════════════════════════════
+   UPLOAD PANEL (en sección trabajos)
+══════════════════════════════════ */
+.upload-panel {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  background: #fff;
+  border: 1.5px dashed rgba(30,42,122,0.2);
+  border-radius: 14px;
+  padding: clamp(1.4rem, 4vw, 2.5rem);
+  box-shadow: 0 4px 24px rgba(30,42,122,0.07);
+  display: none;
+}
+.upload-panel.visible { display: block; }
+
+.upload-panel-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.3rem, 3vw, 1.8rem); letter-spacing: 2px;
+  color: var(--light); margin-bottom: 0.3rem;
+}
+.upload-panel-sub {
+  font-size: 0.82rem; color: var(--muted); letter-spacing: 1px;
+  font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; margin-bottom: 1.5rem;
+}
+
+.upload-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 600px) { .upload-form { grid-template-columns: 1fr; } }
+.upload-form .full { grid-column: 1 / -1; }
+
+.upload-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.upload-field label {
+  font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); font-family: 'Barlow Condensed', sans-serif;
+}
+.upload-field input,
+.upload-field textarea,
+.upload-field select {
+  background: var(--dark2); border: 1.5px solid rgba(30,42,122,0.18);
+  border-radius: 8px; padding: 0.68rem 1rem;
+  font-family: 'Barlow', sans-serif; font-size: 0.9rem; color: var(--light);
+  transition: border-color 0.2s, box-shadow 0.2s; outline: none; width: 100%;
+  -webkit-appearance: none; appearance: none;
+}
+.upload-field input:focus,
+.upload-field textarea:focus,
+.upload-field select:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(41,182,246,0.15); background: #fff; }
+.upload-field textarea { min-height: 90px; resize: vertical; }
+.upload-field select { cursor: pointer; }
+
+/* Image drop zone */
+.img-dropzone {
+  border: 2px dashed rgba(30,42,122,0.25);
+  border-radius: 10px; background: var(--dark2);
+  padding: 1.5rem 1rem; text-align: center; cursor: pointer;
+  transition: all 0.25s; position: relative; overflow: hidden;
+}
+.img-dropzone.drag-over { border-color: var(--sky); background: rgba(41,182,246,0.06); }
+.img-dropzone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 2; }
+.img-dropzone-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.img-dropzone-text { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.img-dropzone-hint { font-size: 0.72rem; color: rgba(74,85,104,0.7); margin-top: 0.3rem; }
+.img-preview {
+  width: 100%; max-height: 200px; object-fit: cover;
+  border-radius: 8px; margin-top: 0.75rem; display: none;
+}
+.img-preview.show { display: block; }
+
+.upload-progress {
+  height: 4px; background: rgba(30,42,122,0.1); border-radius: 2px;
+  overflow: hidden; display: none; margin-top: 0.5rem;
+}
+.upload-progress.show { display: block; }
+.upload-progress-bar {
+  height: 100%; background: var(--sky);
+  border-radius: 2px; width: 0%;
+  transition: width 0.3s ease;
+}
+
+.upload-submit-btn {
+  padding: 0.78rem 2rem;
+  background: #1e2a7a; color: #fff;
+  border: none; border-radius: 8px; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.88rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 700;
+  transition: all 0.2s; align-self: start;
+  box-shadow: 0 4px 14px rgba(30,42,122,0.25);
+}
+.upload-submit-btn:hover { background: var(--blue-dim); transform: translateY(-1px); }
+.upload-submit-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+.upload-msg {
+  font-size: 0.85rem; padding: 0.65rem 1rem; border-radius: 8px;
+  display: none; line-height: 1.5;
+}
+.upload-msg.error { background: #fff5f5; color: #c53030; border: 1px solid #fed7d7; display: block; }
+.upload-msg.success { background: #f0fff4; color: #276749; border: 1px solid #9ae6b4; display: block; }
+
+/* login hint banner */
+.login-hint-banner {
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1.5px dashed rgba(30,42,122,0.18);
+  border-radius: 12px; padding: 1.25rem 1.5rem;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  background: rgba(30,42,122,0.025);
+}
+.login-hint-banner .icon { font-size: 1.5rem; flex-shrink: 0; }
+.login-hint-banner .text { flex: 1; min-width: 160px; }
+.login-hint-banner .text strong {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.85rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue);
+  display: block; margin-bottom: 0.2rem;
+}
+.login-hint-banner .text span { font-size: 0.82rem; color: var(--muted); }
 
 /* ══════════════════════════════════
    HERO
@@ -593,8 +876,8 @@ footer {
 <nav id="navbar">
   <a href="#hero" class="logo">
     <div class="logo-icon">
-  <img src="favikon.png" alt="Logo">
-</div>
+      <img src="favikon.png" alt="Logo">
+    </div>
     <div class="logo-text">AMB <span>CHACO CONSTRUCCIONES</span></div>
   </a>
   <div class="nav-overlay" id="nav-overlay"></div>
@@ -604,11 +887,85 @@ footer {
     <li role="menuitem"><a href="#sobre-mi">Sobre Mí</a></li>
     <li role="menuitem"><a href="#contacto" class="nav-cta">Contacto</a></li>
   </ul>
+
+  <!-- AUTH AREA EN NAVBAR -->
+  <div class="nav-auth-area" id="nav-auth-area">
+    <!-- Botón login (cuando no hay sesión) -->
+    <button class="nav-login-btn" id="nav-login-btn" style="display:none">
+      🔑 Ingresar
+    </button>
+    <!-- Usuario logueado (dropdown) -->
+    <div style="position:relative; display:none;" id="nav-user-wrap">
+      <button class="nav-user-btn" id="nav-user-btn">
+        <div class="nav-user-avatar" id="nav-user-avatar">?</div>
+        <span id="nav-user-label">Mi cuenta</span>
+        <span style="opacity:0.6; font-size:0.65rem;">▼</span>
+      </button>
+      <div class="nav-user-dropdown" id="nav-user-dropdown">
+        <a href="#trabajos" id="nav-upload-link">📷 Subir trabajo</a>
+        <hr>
+        <button class="logout-btn" id="nav-logout-btn">↩ Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+
   <button class="hamburger" id="hamburger"
     aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-links">
     <span></span><span></span><span></span>
   </button>
 </nav>
+
+<!-- ══════════════════════════════════
+     AUTH MODAL
+══════════════════════════════════ -->
+<div class="auth-modal-overlay" id="auth-modal-overlay" role="dialog" aria-modal="true" aria-label="Iniciar sesión">
+  <div class="auth-modal">
+    <div class="auth-modal-header">
+      <button class="auth-modal-close" id="auth-modal-close" aria-label="Cerrar">✕</button>
+      <div class="auth-modal-logo">AMB <span>CHACO</span></div>
+      <div class="auth-modal-tagline">Área de administración</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">Ingresar</button>
+      <button class="auth-tab" data-tab="register">Registrarse</button>
+    </div>
+    <div class="auth-body">
+
+      <!-- LOGIN PANEL -->
+      <div class="auth-panel active" id="auth-panel-login">
+        <div class="auth-field">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label for="login-pass">Contraseña</label>
+          <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <div class="auth-msg" id="login-msg"></div>
+        <button class="auth-submit-btn" id="login-submit-btn">Ingresar ⚡</button>
+      </div>
+
+      <!-- REGISTER PANEL -->
+      <div class="auth-panel" id="auth-panel-register">
+        <div class="auth-field">
+          <label for="reg-name">Nombre</label>
+          <input type="text" id="reg-name" placeholder="Tu nombre" autocomplete="name">
+        </div>
+        <div class="auth-field">
+          <label for="reg-email">Email</label>
+          <input type="email" id="reg-email" placeholder="tu@email.com" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label for="reg-pass">Contraseña</label>
+          <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        </div>
+        <div class="auth-msg" id="reg-msg"></div>
+        <button class="auth-submit-btn" id="reg-submit-btn">Crear cuenta</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <!-- HERO -->
 <section id="hero">
@@ -654,6 +1011,70 @@ footer {
     <h2 class="section-title">TRABAJOS</h2>
     <p class="section-desc">Hacé clic en una tarjeta para ver los detalles del proyecto.</p>
   </div>
+
+  <!-- PANEL DE CARGA (solo para usuarios autenticados) -->
+  <div class="upload-panel reveal" id="upload-panel">
+    <div class="upload-panel-title">+ NUEVO TRABAJO</div>
+    <div class="upload-panel-sub">Completá los datos y subí la foto del trabajo</div>
+    <div class="upload-form" id="upload-form">
+      <div class="upload-field">
+        <label for="up-titulo">Título del trabajo *</label>
+        <input type="text" id="up-titulo" placeholder="Ej: Tablero Residencial">
+      </div>
+      <div class="upload-field">
+        <label for="up-categoria">Categoría *</label>
+        <select id="up-categoria">
+          <option value="">Seleccioná...</option>
+          <option>Electricidad</option>
+          <option>Construcción</option>
+          <option>Iluminación</option>
+          <option>Industrial</option>
+          <option>Plomería</option>
+          <option>Certificación</option>
+          <option>Mantenimiento</option>
+        </select>
+      </div>
+      <div class="upload-field">
+        <label for="up-localizacion">Ubicación</label>
+        <input type="text" id="up-localizacion" placeholder="Ej: Resistencia, 2025">
+      </div>
+      <div class="upload-field">
+        <label for="up-desc">Descripción *</label>
+        <textarea id="up-desc" placeholder="Describí brevemente el trabajo realizado..."></textarea>
+      </div>
+      <div class="upload-field full">
+        <label>Foto del trabajo</label>
+        <div class="img-dropzone" id="img-dropzone">
+          <input type="file" id="up-imagen" accept="image/*">
+          <div class="img-dropzone-icon">📷</div>
+          <div class="img-dropzone-text">Arrastrá una foto o hacé clic para seleccionar</div>
+          <div class="img-dropzone-hint">JPG, PNG, WEBP — Máx. 10MB</div>
+          <img class="img-preview" id="img-preview" alt="Preview">
+        </div>
+        <div class="upload-progress" id="upload-progress">
+          <div class="upload-progress-bar" id="upload-progress-bar"></div>
+        </div>
+      </div>
+      <div class="upload-field full">
+        <div class="upload-msg" id="upload-msg"></div>
+      </div>
+      <div class="upload-field full" style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+        <button class="upload-submit-btn" id="upload-submit-btn">Publicar trabajo ⚡</button>
+        <button class="upload-submit-btn" id="upload-cancel-btn" style="background:transparent;color:var(--muted);border:1.5px solid rgba(30,42,122,0.2);box-shadow:none;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BANNER para no logueados -->
+  <div class="login-hint-banner reveal" id="login-hint-banner" style="display:none">
+    <div class="icon">🔐</div>
+    <div class="text">
+      <strong>¿Sos parte del equipo?</strong>
+      <span>Iniciá sesión para publicar nuevos trabajos en el portfolio.</span>
+    </div>
+    <button class="nav-login-btn" id="hint-login-btn" style="flex-shrink:0;">Ingresar</button>
+  </div>
+
   <div class="works-filters reveal" id="works-filters"></div>
   <div class="works-grid" id="works-container">
     <div class="works-loading">
@@ -699,13 +1120,13 @@ footer {
       <h2 class="section-title">CONTACTO</h2>
       <p class="section-desc">¿Necesitás un presupuesto? ¿Tenés una urgencia? Escribime o llamame y te respondo a la brevedad.</p>
       <div class="contact-items">
-        <a href="tel:+54362XXXXXXX" class="contact-item">
+        <a href="tel:+5436240000865" class="contact-item">
           <div class="ci-icon">📞</div>
           <div class="ci-text"><strong>Teléfono / WhatsApp</strong><span>+54 362 400-0865</span></div>
         </a>
-        <a href="/cdn-cgi/l/email-protection#b4d5d9d6d7dcd5d7dbf4d3d9d5ddd89ad7dbd9" class="contact-item">
+        <a href="mailto:ambchaco@email.com" class="contact-item">
           <div class="ci-icon">✉️</div>
-          <div class="ci-text"><strong>Email</strong><span><span class="__cf_email__" data-cfemail="7a1b171819121b19153a1d171b131654191517">[email&#160;protected]</span></span></div>
+          <div class="ci-text"><strong>Email</strong><span>ambchaco@email.com</span></div>
         </a>
         <div class="contact-item">
           <div class="ci-icon">📍</div>
@@ -792,22 +1213,77 @@ footer {
 
 <script>
 /* ════════════════════════════════════════════════════════════
-   ▶  TRABAJOS — Sistema Cloudinary
+   ▶  CONFIGURACIÓN SUPABASE
    ════════════════════════════════════════════════════════════
-   Para agregar un trabajo nuevo, copiá el bloque de abajo
-   y pegalo en el array. La imagen es la URL de Cloudinary.
 
-   Ejemplo de URL de Cloudinary:
-   https://res.cloudinary.com/TU_CLOUD/image/upload/v123456/trabajo1.jpg
-   ═══════════════════════════════════════════════════════════ */
+   PASO 1 — Crear proyecto en Supabase
+   ─────────────────────────────────────
+   1. Ir a https://app.supabase.com y crear una cuenta (gratis).
+   2. Crear un nuevo proyecto. Elegir región más cercana (ej: South America).
+   3. Guardar la contraseña del proyecto.
 
-const trabajos = [
+   PASO 2 — Obtener las credenciales
+   ─────────────────────────────────────
+   1. En el panel de tu proyecto → Settings (ícono engranaje) → API
+   2. Copiar:
+      - "Project URL"   → va en SUPABASE_URL
+      - "anon / public" → va en SUPABASE_ANON
+
+   PASO 3 — Crear la tabla "trabajos"
+   ─────────────────────────────────────
+   En el panel → SQL Editor → pegar y ejecutar:
+
+   CREATE TABLE trabajos (
+     id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+     created_at  timestamptz DEFAULT now(),
+     user_id     uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+     titulo      text NOT NULL,
+     categoria   text,
+     localizacion text,
+     descripcion text,
+     imagen      text
+   );
+
+   -- Permitir lectura pública
+   ALTER TABLE trabajos ENABLE ROW LEVEL SECURITY;
+   CREATE POLICY "Lectura pública" ON trabajos FOR SELECT USING (true);
+   CREATE POLICY "Insert autenticado" ON trabajos FOR INSERT
+     WITH CHECK (auth.uid() = user_id);
+
+   PASO 4 — Crear el bucket de Storage para imágenes
+   ─────────────────────────────────────
+   1. En el panel → Storage → New bucket
+   2. Nombre: "trabajos"  (debe coincidir con STORAGE_BUCKET abajo)
+   3. Marcar como PUBLIC bucket
+   4. En Policies del bucket → New policy → "Give users access to own folder":
+      - Allowed operations: SELECT, INSERT
+      - Target roles: authenticated
+
+   PASO 5 — Habilitar Auth por email
+   ─────────────────────────────────────
+   1. En el panel → Authentication → Providers
+   2. Asegurarse que "Email" esté habilitado.
+   3. (Opcional) En Auth → Settings → desactivar "Confirm email"
+      para que los usuarios puedan loguearse sin verificar el email.
+
+   PASO 6 — Pegar las credenciales abajo y listo 🚀
+   ══════════════════════════════════════════════════════════ */
+const SUPABASE_URL    = 'https://nrpavwkukqcjxjcfefey.supabase.co';        // Ej: https://xxxxx.supabase.co
+const SUPABASE_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ycGF2d2t1a3FjanhqY2ZlZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MjM1NjUsImV4cCI6MjA5MTk5OTU2NX0.DN3m_RDS1T4tWChftwNwdVMjNFH2QdN88ycNLoSYm_s';   // clave pública "anon"
+const STORAGE_BUCKET  = 'trabajos';               // nombre del bucket en Storage
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* ════════════════════════════════════════════════════════════
+   ▶  TRABAJOS HARDCODEADOS (fallback si Supabase no está configurado)
+   ════════════════════════════════════════════════════════════ */
+const trabajosFallback = [
   {
     titulo: "Tablero Residencial",
     categoria: "Electricidad",
     localizacion: "Resistencia, 2024",
     descripcion: "Renovación completa del tablero eléctrico con llaves termomagnéticas y diferencial de 25A. Materiales de primera calidad.",
-    imagen: "https://res.cloudinary.com/dt0yo5iyq/image/upload/v1772884794/Foto-portada-2023-07-17T094449.118_rh1imb.jpg"  // Reemplazá con tu URL de Cloudinary
+    imagen: "https://res.cloudinary.com/dt0yo5iyq/image/upload/v1772884794/Foto-portada-2023-07-17T094449.118_rh1imb.jpg"
   },
   {
     titulo: "Remodelación Cocina",
@@ -820,7 +1296,7 @@ const trabajos = [
     titulo: "Sistema LED Exterior",
     categoria: "Iluminación",
     localizacion: "Fontana, 2023",
-    descripcion: "Diseño e instalacion........",
+    descripcion: "Diseño e instalación de iluminación LED exterior.",
     imagen: "https://res.cloudinary.com/drdn599io/image/upload/v1776112387/unnamed_uxgrei.jpg"
   },
   {
@@ -843,18 +1319,19 @@ const trabajos = [
     localizacion: "Gran Chaco, 2024",
     descripcion: "Planos eléctricos, memoria descriptiva y certificado de aptitud para habilitación municipal. Aprobado en primera presentación.",
     imagen: ""
-  },
-  // ── Agregá más trabajos acá ──
-  // {
-  //   titulo: "",
-  //   categoria: "",     // Electricidad | Construcción | Iluminación | Industrial | Plomería | Certificación | Mantenimiento
-  //   localizacion: "",  // Ejemplo: "Resistencia, 2025"
-  //   descripcion: "",
-  //   imagen: ""         // URL de Cloudinary
-  // },
+  }
 ];
 
-/* ── Hamburger ── */
+/* ════════════════════════════════════════════════════════════
+   ▶  ESTADO GLOBAL
+   ══════════════════════════════════════════════════════════ */
+let currentUser  = null;
+let allWorks     = [];
+let activeFilter = 'Todos';
+
+/* ════════════════════════════════════════════════════════════
+   ▶  HAMBURGER
+   ══════════════════════════════════════════════════════════ */
 const hamburger = document.getElementById('hamburger');
 const navLinks  = document.getElementById('nav-links');
 const overlay   = document.getElementById('nav-overlay');
@@ -865,9 +1342,291 @@ const closeMenu = () => { navLinks.classList.remove('open'); hamburger.classList
 hamburger.addEventListener('click', e => { e.stopPropagation(); navLinks.classList.contains('open') ? closeMenu() : openMenu(); });
 navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
 overlay.addEventListener('click', closeMenu);
-document.addEventListener('keydown', e => { if (e.key==='Escape') { closeMenu(); closeLightbox(); } });
+document.addEventListener('keydown', e => { if (e.key==='Escape') { closeMenu(); closeLightbox(); closeAuthModal(); } });
 
-/* ── Lightbox ── */
+/* ════════════════════════════════════════════════════════════
+   ▶  AUTH MODAL
+   ══════════════════════════════════════════════════════════ */
+const authOverlay = document.getElementById('auth-modal-overlay');
+
+function openAuthModal(tab = 'login') {
+  authOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  switchAuthTab(tab);
+}
+function closeAuthModal() {
+  authOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('auth-modal-close').addEventListener('click', closeAuthModal);
+authOverlay.addEventListener('click', e => { if (e.target === authOverlay) closeAuthModal(); });
+
+// Tabs
+document.querySelectorAll('.auth-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchAuthTab(tab.dataset.tab));
+});
+
+function switchAuthTab(name) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.getElementById('auth-panel-login').classList.toggle('active', name === 'login');
+  document.getElementById('auth-panel-register').classList.toggle('active', name === 'register');
+}
+
+// Botones de apertura del modal
+document.getElementById('nav-login-btn').addEventListener('click', () => openAuthModal('login'));
+document.getElementById('hint-login-btn').addEventListener('click', () => openAuthModal('login'));
+
+/* ════════════════════════════════════════════════════════════
+   ▶  AUTH — LOGIN
+   ══════════════════════════════════════════════════════════ */
+document.getElementById('login-submit-btn').addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const msg   = document.getElementById('login-msg');
+  const btn   = document.getElementById('login-submit-btn');
+  msg.className = 'auth-msg';
+
+  if (!email || !pass) { msg.className = 'auth-msg error'; msg.textContent = '⚠ Completá email y contraseña.'; return; }
+
+  btn.disabled = true; btn.textContent = 'Ingresando...';
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Ingresar ⚡';
+
+  if (error) {
+    msg.className = 'auth-msg error';
+    msg.textContent = '❌ ' + (error.message.includes('Invalid') ? 'Email o contraseña incorrectos.' : error.message);
+  } else {
+    currentUser = data.user;
+    updateNavAuth();
+    closeAuthModal();
+  }
+});
+
+/* ════════════════════════════════════════════════════════════
+   ▶  AUTH — REGISTER
+   ══════════════════════════════════════════════════════════ */
+document.getElementById('reg-submit-btn').addEventListener('click', async () => {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  const msg   = document.getElementById('reg-msg');
+  const btn   = document.getElementById('reg-submit-btn');
+  msg.className = 'auth-msg';
+
+  if (!name || !email || !pass) { msg.className = 'auth-msg error'; msg.textContent = '⚠ Completá todos los campos.'; return; }
+  if (pass.length < 6) { msg.className = 'auth-msg error'; msg.textContent = '⚠ La contraseña debe tener al menos 6 caracteres.'; return; }
+
+  btn.disabled = true; btn.textContent = 'Creando cuenta...';
+  const { data, error } = await supabase.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+  btn.disabled = false; btn.textContent = 'Crear cuenta';
+
+  if (error) {
+    msg.className = 'auth-msg error'; msg.textContent = '❌ ' + error.message;
+  } else if (data.user && !data.session) {
+    msg.className = 'auth-msg success'; msg.textContent = '✅ ¡Cuenta creada! Revisá tu email para confirmar.';
+  } else {
+    currentUser = data.user; updateNavAuth(); closeAuthModal();
+  }
+});
+
+/* ════════════════════════════════════════════════════════════
+   ▶  AUTH — LOGOUT
+   ══════════════════════════════════════════════════════════ */
+document.getElementById('nav-logout-btn').addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  currentUser = null;
+  updateNavAuth();
+  document.getElementById('nav-user-dropdown').classList.remove('open');
+});
+
+/* ════════════════════════════════════════════════════════════
+   ▶  NAV — DROPDOWN USUARIO
+   ══════════════════════════════════════════════════════════ */
+document.getElementById('nav-user-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('nav-user-dropdown').classList.toggle('open');
+});
+document.addEventListener('click', () => {
+  document.getElementById('nav-user-dropdown').classList.remove('open');
+});
+document.getElementById('nav-upload-link').addEventListener('click', (e) => {
+  document.getElementById('nav-user-dropdown').classList.remove('open');
+  const panel = document.getElementById('upload-panel');
+  // Asegurarse de que el panel esté visible antes de hacer scroll
+  if (panel.classList.contains('visible')) {
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    document.getElementById('trabajos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+
+/* ════════════════════════════════════════════════════════════
+   ▶  ACTUALIZAR UI SEGÚN ESTADO DE AUTH
+   ══════════════════════════════════════════════════════════ */
+function updateNavAuth() {
+  const loginBtn      = document.getElementById('nav-login-btn');
+  const userWrap      = document.getElementById('nav-user-wrap');
+  const uploadPanel   = document.getElementById('upload-panel');
+  const hintBanner    = document.getElementById('login-hint-banner');
+  const avatarEl      = document.getElementById('nav-user-avatar');
+  const labelEl       = document.getElementById('nav-user-label');
+
+  if (currentUser) {
+    loginBtn.style.display  = 'none';
+    userWrap.style.display  = 'block';
+    uploadPanel.classList.add('visible');
+    hintBanner.style.display = 'none';
+    // avatar con inicial
+    const name = currentUser.user_metadata?.full_name || currentUser.email || '?';
+    avatarEl.textContent = name[0].toUpperCase();
+    labelEl.textContent  = name.split(' ')[0] || 'Mi cuenta';
+  } else {
+    loginBtn.style.display  = 'inline-flex';
+    userWrap.style.display  = 'none';
+    uploadPanel.classList.remove('visible');
+    hintBanner.style.display = 'flex';
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   ▶  UPLOAD PANEL — IMAGE PREVIEW & DRAG
+   ══════════════════════════════════════════════════════════ */
+const dropzone    = document.getElementById('img-dropzone');
+const fileInput   = document.getElementById('up-imagen');
+const imgPreview  = document.getElementById('img-preview');
+
+fileInput.addEventListener('change', () => showPreview(fileInput.files[0]));
+
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault(); dropzone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const dt = new DataTransfer(); dt.items.add(file); fileInput.files = dt.files;
+    showPreview(file);
+  }
+});
+
+function showPreview(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { imgPreview.src = e.target.result; imgPreview.classList.add('show'); };
+  reader.readAsDataURL(file);
+}
+
+/* ════════════════════════════════════════════════════════════
+   ▶  UPLOAD PANEL — SUBMIT
+   ══════════════════════════════════════════════════════════ */
+document.getElementById('upload-submit-btn').addEventListener('click', async () => {
+  if (!currentUser) { openAuthModal('login'); return; }
+
+  const titulo      = document.getElementById('up-titulo').value.trim();
+  const categoria   = document.getElementById('up-categoria').value;
+  const localizacion= document.getElementById('up-localizacion').value.trim();
+  const descripcion = document.getElementById('up-desc').value.trim();
+  const file        = fileInput.files[0];
+  const msg         = document.getElementById('upload-msg');
+  const btn         = document.getElementById('upload-submit-btn');
+  const progress    = document.getElementById('upload-progress');
+  const progressBar = document.getElementById('upload-progress-bar');
+
+  msg.className = 'upload-msg';
+
+  if (!titulo || !categoria || !descripcion) {
+    msg.className = 'upload-msg error'; msg.textContent = '⚠ Completá título, categoría y descripción.'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Publicando...';
+  let imagen_url = '';
+
+  // Subir imagen al Storage de Supabase
+  if (file) {
+    progress.classList.add('show'); progressBar.style.width = '30%';
+    const ext  = file.name.split('.').pop();
+    const path = `${currentUser.id}/${Date.now()}.${ext}`;
+
+    const { data: upData, error: upErr } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(path, file, { cacheControl: '3600', upsert: false });
+
+    progressBar.style.width = '70%';
+
+    if (upErr) {
+      btn.disabled = false; btn.textContent = 'Publicar trabajo ⚡';
+      progress.classList.remove('show');
+      msg.className = 'upload-msg error';
+      msg.textContent = '❌ Error subiendo la imagen: ' + upErr.message; return;
+    }
+
+    const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+    imagen_url = urlData.publicUrl;
+    progressBar.style.width = '100%';
+  }
+
+  // Guardar en tabla "trabajos" de Supabase
+  const { data: insData, error: insErr } = await supabase
+    .from('trabajos')
+    .insert([{ titulo, categoria, localizacion, descripcion, imagen: imagen_url, user_id: currentUser.id }])
+    .select();
+
+  btn.disabled = false; btn.textContent = 'Publicar trabajo ⚡';
+  setTimeout(() => { progress.classList.remove('show'); progressBar.style.width = '0%'; }, 800);
+
+  if (insErr) {
+    msg.className = 'upload-msg error'; msg.textContent = '❌ Error al guardar: ' + insErr.message;
+  } else {
+    msg.className = 'upload-msg success'; msg.textContent = '✅ ¡Trabajo publicado con éxito!';
+    // Limpiar form
+    document.getElementById('up-titulo').value = '';
+    document.getElementById('up-categoria').value = '';
+    document.getElementById('up-localizacion').value = '';
+    document.getElementById('up-desc').value = '';
+    fileInput.value = ''; imgPreview.classList.remove('show');
+    // Recargar trabajos
+    await loadWorks();
+    setTimeout(() => { msg.className = 'upload-msg'; }, 4000);
+  }
+});
+
+document.getElementById('upload-cancel-btn').addEventListener('click', () => {
+  document.getElementById('up-titulo').value = '';
+  document.getElementById('up-categoria').value = '';
+  document.getElementById('up-localizacion').value = '';
+  document.getElementById('up-desc').value = '';
+  fileInput.value = ''; imgPreview.classList.remove('show');
+  document.getElementById('upload-msg').className = 'upload-msg';
+});
+
+/* ════════════════════════════════════════════════════════════
+   ▶  CARGAR TRABAJOS desde Supabase
+   ══════════════════════════════════════════════════════════ */
+async function loadWorks() {
+  try {
+    const { data, error } = await supabase
+      .from('trabajos')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error || !data || data.length === 0) {
+      // Si no hay datos en Supabase, usar los hardcodeados
+      allWorks = trabajosFallback;
+    } else {
+      // Combinar: trabajos de Supabase primero, luego los hardcodeados
+      allWorks = [...data, ...trabajosFallback];
+    }
+  } catch (e) {
+    // Supabase no configurado aún: usar fallback
+    allWorks = trabajosFallback;
+  }
+  renderFilters();
+  renderCards();
+}
+
+/* ════════════════════════════════════════════════════════════
+   ▶  LIGHTBOX
+   ══════════════════════════════════════════════════════════ */
 const lb        = document.getElementById('lightbox');
 const lbImgWrap = document.getElementById('lb-img-wrap');
 const lbTag     = document.getElementById('lb-tag');
@@ -893,7 +1652,9 @@ function closeLightbox() {
 document.getElementById('lb-close').addEventListener('click', closeLightbox);
 lb.addEventListener('click', e => { if (e.target === lb) closeLightbox(); });
 
-/* ── Íconos por categoría ── */
+/* ════════════════════════════════════════════════════════════
+   ▶  ÍCONOS POR CATEGORÍA
+   ══════════════════════════════════════════════════════════ */
 const catIcons = {
   electricidad: '🔌', 'construcción': '🏗️', construccion: '🏗️',
   mantenimiento: '🔧', 'iluminación': '💡', iluminacion: '💡',
@@ -902,26 +1663,22 @@ const catIcons = {
 };
 const iconFor = cat => catIcons[(cat||'').toLowerCase()] || '⚡';
 
-/* ── Estado ── */
-let allWorks = trabajos, activeFilter = 'Todos';
+/* ════════════════════════════════════════════════════════════
+   ▶  FILTROS Y TARJETAS
+   ══════════════════════════════════════════════════════════ */
 const container   = document.getElementById('works-container');
 const filtersWrap = document.getElementById('works-filters');
 
-/* ── Render filtros ── */
 function renderFilters() {
   const cats = ['Todos', ...new Set(allWorks.map(w => w.categoria).filter(Boolean))];
   filtersWrap.innerHTML = cats.map(c =>
     `<button class="filter-btn${c === activeFilter ? ' active' : ''}" data-cat="${c}">${c}</button>`
   ).join('');
   filtersWrap.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeFilter = btn.dataset.cat;
-      renderFilters(); renderCards();
-    });
+    btn.addEventListener('click', () => { activeFilter = btn.dataset.cat; renderFilters(); renderCards(); });
   });
 }
 
-/* ── Render tarjetas ── */
 function renderCards() {
   const list = activeFilter === 'Todos' ? allWorks : allWorks.filter(w => w.categoria === activeFilter);
   if (!list.length) {
@@ -946,17 +1703,14 @@ function renderCards() {
       </div>
     </div>
   `).join('');
-
   container.querySelectorAll('.work-card').forEach(card => {
     card.addEventListener('click', () => openLightbox(allWorks[+card.dataset.idx]));
   });
 }
 
-/* ── Iniciar ── */
-renderFilters();
-renderCards();
-
-/* ── Formulario de contacto ── */
+/* ════════════════════════════════════════════════════════════
+   ▶  FORMULARIO DE CONTACTO
+   ══════════════════════════════════════════════════════════ */
 document.getElementById('contact-form').addEventListener('submit', function(e) {
   e.preventDefault();
   const nombre = document.getElementById('nombre').value.trim();
@@ -972,15 +1726,37 @@ document.getElementById('contact-form').addEventListener('submit', function(e) {
   setTimeout(() => { msg.style.display = 'none'; }, 5000);
 });
 
-/* ── Scroll reveal ── */
-const observer = new IntersectionObserver(
-  entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }),
+/* ════════════════════════════════════════════════════════════
+   ▶  SCROLL REVEAL
+   ══════════════════════════════════════════════════════════ */
+const revObserver = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revObserver.unobserve(e.target); } }),
   { threshold: 0.12 }
 );
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+document.querySelectorAll('.reveal').forEach(el => revObserver.observe(el));
+
+/* ════════════════════════════════════════════════════════════
+   ▶  INIT: VERIFICAR SESIÓN EXISTENTE
+   ══════════════════════════════════════════════════════════ */
+(async () => {
+  // Mostrar botón de login mientras carga
+  document.getElementById('nav-login-btn').style.display = 'inline-flex';
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) { currentUser = session.user; }
+  } catch(e) { /* Supabase no configurado */ }
+
+  updateNavAuth();
+  await loadWorks();
+
+  // Escuchar cambios de sesión en tiempo real
+  supabase.auth.onAuthStateChange((_event, session) => {
+    currentUser = session?.user || null;
+    updateNavAuth();
+  });
+})();
 
 </script>
 </body>
-</html>
-
 </html>
