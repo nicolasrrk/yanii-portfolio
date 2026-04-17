@@ -1093,6 +1093,38 @@ footer {
   </div>
 </div>
 
+<!-- MODAL EDITAR TRABAJO -->
+<div class="edit-modal-overlay" id="edit-modal-overlay">
+  <div class="edit-modal">
+    <button class="edit-modal-close" id="edit-modal-close">✕</button>
+    <h4>EDITAR TRABAJO</h4>
+    <div class="edit-form">
+      <input type="hidden" id="edit-id">
+      <input type="text"   id="edit-titulo"      placeholder="Título">
+      <select id="edit-categoria">
+        <option value="">Categoría...</option>
+        <option>Electricidad</option>
+        <option>Construcción</option>
+        <option>Iluminación</option>
+        <option>Industrial</option>
+        <option>Plomería</option>
+        <option>Certificación</option>
+        <option>Mantenimiento</option>
+      </select>
+      <input type="text"   id="edit-localizacion" placeholder="Localización">
+      <textarea            id="edit-descripcion"  placeholder="Descripción..."></textarea>
+      <div class="edit-msg" id="edit-msg"></div>
+      <div style="display:flex;gap:0.75rem;">
+        <button class="btn btn-primary" id="edit-save-btn" style="flex:1;gap:0.5rem;">
+          <span id="edit-btn-text">Guardar cambios</span>
+          <span class="btn-spinner" id="edit-spinner"></span>
+        </button>
+        <button class="btn btn-outline" id="edit-cancel-btn" style="flex:1;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 /* ════════════════════════════════════════════════════════════
    ▶  SUPABASE CONFIG
@@ -1167,7 +1199,7 @@ const closeMenu = () => { navLinks.classList.remove('open'); hamburger.classList
 hamburger.addEventListener('click', e => { e.stopPropagation(); navLinks.classList.contains('open') ? closeMenu() : openMenu(); });
 navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
 overlay.addEventListener('click', closeMenu);
-document.addEventListener('keydown', e => { if (e.key==='Escape') { closeMenu(); closeLightbox(); closeAuthModal(); } });
+document.addEventListener('keydown', e => { if (e.key==='Escape') { closeMenu(); closeLightbox(); if(typeof closeAuthModal==='function') closeAuthModal(); if(typeof closeEditModal==='function') closeEditModal(); } });
 
 /* ── Lightbox ── */
 const lb        = document.getElementById('lightbox');
@@ -1651,36 +1683,5 @@ container.addEventListener('click', async e => {
   }
 });
 </script>
-   <!-- MODAL EDITAR TRABAJO -->
-<div class="edit-modal-overlay" id="edit-modal-overlay">
-  <div class="edit-modal">
-    <button class="edit-modal-close" id="edit-modal-close">✕</button>
-    <h4>EDITAR TRABAJO</h4>
-    <div class="edit-form">
-      <input type="hidden" id="edit-id">
-      <input type="text"   id="edit-titulo"      placeholder="Título">
-      <select id="edit-categoria">
-        <option value="">Categoría...</option>
-        <option>Electricidad</option>
-        <option>Construcción</option>
-        <option>Iluminación</option>
-        <option>Industrial</option>
-        <option>Plomería</option>
-        <option>Certificación</option>
-        <option>Mantenimiento</option>
-      </select>
-      <input type="text"   id="edit-localizacion" placeholder="Localización">
-      <textarea            id="edit-descripcion"  placeholder="Descripción..."></textarea>
-      <div class="edit-msg" id="edit-msg"></div>
-      <div style="display:flex;gap:0.75rem;">
-        <button class="btn btn-primary" id="edit-save-btn" style="flex:1;gap:0.5rem;">
-          <span id="edit-btn-text">Guardar cambios</span>
-          <span class="btn-spinner" id="edit-spinner"></span>
-        </button>
-        <button class="btn btn-outline" id="edit-cancel-btn" style="flex:1;">Cancelar</button>
-      </div>
-    </div>
-  </div>
-</div>
 </body>
 </html>
