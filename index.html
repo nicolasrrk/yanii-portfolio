@@ -738,6 +738,38 @@ footer {
   animation: spin 0.7s linear infinite;
   display: none;
 }
+/* ══ Botones admin en tarjetas ══ */
+.work-card-admin-btns {
+  display: none;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem 0.7rem;
+  border-top: 1px solid rgba(30,42,122,0.08);
+}
+body.admin-logged .work-card-admin-btns { display: flex; }
+
+.btn-edit, .btn-delete {
+  flex: 1; padding: 0.4rem 0.6rem;
+  border: none; border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase;
+  font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+}
+.btn-edit   { background: rgba(30,42,122,0.1); color: var(--blue); }
+.btn-delete { background: rgba(248,113,113,0.12); color: #c53030; }
+.btn-edit:hover   { opacity: 0.75; }
+.btn-delete:hover { opacity: 0.75; }
+
+/* Modo edición del formulario */
+#aw-cancel-edit {
+  display: none; background: transparent;
+  border: 1px solid rgba(30,42,122,0.25); color: var(--muted);
+  border-radius: var(--r); padding: 0.7rem 1.4rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 0.9rem; letter-spacing: 1px;
+  text-transform: uppercase; cursor: pointer;
+}
+#aw-cancel-edit.visible { display: block; }
+.aw-form-actions { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -844,10 +876,13 @@ footer {
       </div>
       <img class="file-preview" id="aw-preview" alt="Vista previa">
       <div class="add-work-msg" id="aw-msg"></div>
-      <button class="btn btn-primary" id="aw-submit-btn" style="align-self:flex-start;gap:0.5rem;">
-        <span id="aw-btn-text">Publicar Trabajo</span>
-        <span class="btn-spinner" id="aw-spinner"></span>
-      </button>
+<div class="aw-form-actions">
+  <button class="btn btn-primary" id="aw-submit-btn" style="gap:0.5rem;">
+    <span id="aw-btn-text">Publicar Trabajo</span>
+    <span class="btn-spinner" id="aw-spinner"></span>
+  </button>
+  <button id="aw-cancel-edit" type="button">✕ Cancelar edición</button>
+</div>
     </div>
   </div>
   <div class="works-filters reveal" id="works-filters"></div>
@@ -1474,6 +1509,226 @@ const observer = new IntersectionObserver(
 );
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
+/* ════════════════════════════════════════════════════════════
+   ▶  EDITAR / ELIMINAR TRABAJOS
+   ════════════════════════════════════════════════════════════ */
+
+/* Estado de edición */
+let editingWorkId = null;
+
+const awCancelEdit = document.getElementById('aw-cancel-edit');
+
+/* ── Guardar el id de Supabase en allWorks ── */
+// IMPORTANTE: reemplazamos cargarTrabajos para incluir el id
+const _cargarTrabajosOriginal = cargarTrabajos;
+async function cargarTrabajos() {
+  try {
+    const { data, error } = await supabase
+      .from('trabajos')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    const dbWorks = (error || !data) ? [] : data.map(r => ({
+      id: r.id,                      // ← guardamos el id
+      titulo: r.titulo,
+      categoria: r.categoria,
+      localizacion: r.localizacion,
+      descripcion: r.descripcion,
+      imagen: r.imagen_url || '',
+      _fromDB: true                  // ← marcamos que vino de la BD
+    }));
+
+    allWorks = [...dbWorks, ...trabajosEstaticos];
+  } catch {
+    allWorks = [...trabajosEstaticos];
+  }
+  renderFilters();
+  renderCards();
+}
+
+/* ── Render tarjetas con botones admin ── */
+function renderCards() {
+  const list = activeFilter === 'Todos' ? allWorks : allWorks.filter(w => w.categoria === activeFilter);
+  if (!list.length) {
+    container.innerHTML = `<div class="works-empty">No hay trabajos en esta categoría todavía.</div>`;
+    return;
+  }
+  container.innerHTML = list.map((w, i) => `
+    <div class="work-card" data-idx="${allWorks.indexOf(w)}"
+         style="animation:cardIn 0.45s ${i * 0.06}s ease both;">
+      <div class="work-thumb">
+        ${w.imagen
+          ? `<img src="${w.imagen}" alt="${w.titulo}" loading="lazy"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+             <div class="work-thumb-placeholder" style="display:none">${iconFor(w.categoria)}</div>`
+          : `<div class="work-thumb-placeholder">${iconFor(w.categoria)}</div>`
+        }
+      </div>
+      <div class="work-info">
+        <div class="work-tag">${w.categoria || 'Trabajo'}</div>
+        <div class="work-title">${w.titulo}</div>
+        ${w.localizacion ? `<div class="work-location">📍 ${w.localizacion}</div>` : ''}
+      </div>
+      ${w._fromDB ? `
+      <div class="work-card-admin-btns">
+        <button class="btn-edit"   data-idx="${allWorks.indexOf(w)}">✏️ Editar</button>
+        <button class="btn-delete" data-idx="${allWorks.indexOf(w)}">🗑 Eliminar</button>
+      </div>` : ''}
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.work-card').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('.work-card-admin-btns')) return; // no abrir lightbox al clickear botones
+      openLightbox(allWorks[+card.dataset.idx]);
+    });
+  });
+
+  container.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); startEdit(allWorks[+btn.dataset.idx]); });
+  });
+
+  container.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); deleteWork(allWorks[+btn.dataset.idx]); });
+  });
+}
+
+/* ── Modo edición: pre-llenar formulario ── */
+function startEdit(w) {
+  if (!w._fromDB) return;
+  editingWorkId = w.id;
+
+  document.getElementById('aw-titulo').value       = w.titulo        || '';
+  document.getElementById('aw-categoria').value    = w.categoria     || '';
+  document.getElementById('aw-localizacion').value = w.localizacion  || '';
+  document.getElementById('aw-descripcion').value  = w.descripcion   || '';
+  awImagen.value = '';
+  awPreview.style.display = 'none';
+  awPreview.src = '';
+  document.querySelector('.file-input-label').innerHTML = w.imagen
+    ? `<span>🖼️</span> Imagen actual (subí otra para reemplazarla)`
+    : `<span>📷</span> Seleccioná una imagen...`;
+
+  awBtnText.textContent = 'Actualizar Trabajo';
+  awCancelEdit.classList.add('visible');
+  awMsg.className = 'add-work-msg';
+  awMsg.textContent = '';
+
+  // Scroll al formulario
+  document.getElementById('add-work-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── Cancelar edición ── */
+function cancelEdit() {
+  editingWorkId = null;
+  document.getElementById('aw-titulo').value       = '';
+  document.getElementById('aw-categoria').value    = '';
+  document.getElementById('aw-localizacion').value = '';
+  document.getElementById('aw-descripcion').value  = '';
+  awImagen.value = '';
+  awPreview.style.display = 'none';
+  awPreview.src = '';
+  document.querySelector('.file-input-label').innerHTML = '<span>📷</span> Seleccioná una imagen...';
+  awBtnText.textContent = 'Publicar Trabajo';
+  awCancelEdit.classList.remove('visible');
+  awMsg.className = 'add-work-msg';
+  awMsg.textContent = '';
+}
+awCancelEdit.addEventListener('click', cancelEdit);
+
+/* ── Eliminar trabajo ── */
+async function deleteWork(w) {
+  if (!w._fromDB || !w.id) return;
+  if (!confirm(`¿Eliminar "${w.titulo}"? Esta acción no se puede deshacer.`)) return;
+
+  try {
+    const { error } = await supabase.from('trabajos').delete().eq('id', w.id);
+    if (error) throw error;
+    await cargarTrabajos();
+  } catch (e) {
+    alert('❌ Error al eliminar: ' + (e.message || 'Intentá de nuevo.'));
+  }
+}
+
+/* ── Interceptar el submit para diferenciar crear vs actualizar ── */
+const _originalSubmitHandler = awSubmitBtn.onclick; // por si acaso
+awSubmitBtn.addEventListener('click', async (e) => {
+  if (!editingWorkId) return; // si no hay edición activa, el listener original se encarga
+
+  e.stopImmediatePropagation(); // evitar que corra el listener de agregar
+
+  if (!currentUser) {
+    awMsg.className = 'add-work-msg error';
+    awMsg.textContent = '⚠ Debés iniciar sesión primero.';
+    return;
+  }
+
+  const titulo       = document.getElementById('aw-titulo').value.trim();
+  const categoria    = document.getElementById('aw-categoria').value;
+  const localizacion = document.getElementById('aw-localizacion').value.trim();
+  const descripcion  = document.getElementById('aw-descripcion').value.trim();
+  const file         = awImagen.files[0];
+
+  if (!titulo || !categoria) {
+    awMsg.className = 'add-work-msg error';
+    awMsg.textContent = '⚠ Título y categoría son obligatorios.';
+    return;
+  }
+
+  awSpinner.style.display = 'inline-block';
+  awSubmitBtn.disabled = true;
+  awMsg.className = 'add-work-msg';
+  awMsg.textContent = '';
+
+  try {
+    let updateData = { titulo, categoria, localizacion, descripcion };
+
+    /* Solo subir imagen si el admin eligió una nueva */
+    if (file) {
+      const ext      = file.name.split('.').pop();
+      const fileName = `trabajo_${Date.now()}.${ext}`;
+      const { error: storageErr } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(fileName, file, { upsert: false });
+      if (storageErr) throw storageErr;
+
+      const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(fileName);
+      updateData.imagen_url = urlData.publicUrl;
+    }
+
+    const { error: dbErr } = await supabase
+      .from('trabajos')
+      .update(updateData)
+      .eq('id', editingWorkId);
+
+    if (dbErr) throw dbErr;
+
+    awMsg.className = 'add-work-msg success';
+    awMsg.textContent = '✅ ¡Trabajo actualizado correctamente!';
+
+    cancelEdit();
+    await cargarTrabajos();
+
+  } catch (e) {
+    awMsg.className = 'add-work-msg error';
+    awMsg.textContent = '❌ Error al actualizar: ' + (e.message || 'Intentá de nuevo.');
+  }
+
+  awSpinner.style.display = 'none';
+  awSubmitBtn.disabled = false;
+}, true); // useCapture=true para correr antes del listener original
+
+/* ── Mostrar/ocultar botones admin según sesión ── */
+const _updateNavBtnOriginal = updateNavBtn;
+function updateNavBtn() {
+  _updateNavBtnOriginal();
+  if (currentUser) {
+    document.body.classList.add('admin-logged');
+  } else {
+    document.body.classList.remove('admin-logged');
+    cancelEdit(); // limpiar si cierra sesión mientras editaba
+  }
+}   
 </script>
 </body>
 </html>
