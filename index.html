@@ -738,6 +738,86 @@ footer {
   animation: spin 0.7s linear infinite;
   display: none;
 }
+   .work-admin-actions {
+  display: flex; gap: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  border-top: 1px solid rgba(30,42,122,0.08);
+  background: rgba(30,42,122,0.02);
+}
+.work-edit-btn, .work-delete-btn {
+  flex: 1; padding: 0.4rem 0.5rem;
+  border: none; border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem; letter-spacing: 1px;
+  text-transform: uppercase; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+}
+.work-edit-btn {
+  background: rgba(30,42,122,0.08);
+  color: var(--blue);
+  border: 1px solid rgba(30,42,122,0.2);
+}
+.work-edit-btn:hover { background: #1e2a7a; color: #fff; }
+.work-delete-btn {
+  background: rgba(220,38,38,0.07);
+  color: #c53030;
+  border: 1px solid rgba(220,38,38,0.2);
+}
+.work-delete-btn:hover { background: #c53030; color: #fff; }
+
+/* Modal de edición */
+.edit-modal-overlay {
+  position: fixed; inset: 0; z-index: 3500;
+  background: rgba(20,30,80,0.88);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease; padding: 1rem;
+  backdrop-filter: blur(6px);
+}
+.edit-modal-overlay.open { opacity: 1; pointer-events: auto; }
+.edit-modal {
+  background: #fff;
+  border: 1px solid rgba(30,42,122,0.2);
+  border-radius: calc(var(--r) * 1.5);
+  box-shadow: 0 30px 80px rgba(20,30,80,0.35);
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  width: 100%; max-width: 480px;
+  transform: scale(0.92); transition: transform 0.3s ease;
+  position: relative; max-height: 90dvh; overflow-y: auto;
+}
+.edit-modal-overlay.open .edit-modal { transform: scale(1); }
+.edit-modal h4 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem; letter-spacing: 2px;
+  color: var(--light); margin-bottom: 1.25rem;
+}
+.edit-modal-close {
+  position: absolute; top: 0.75rem; right: 0.75rem;
+  background: rgba(30,42,122,0.08); border: 1px solid rgba(30,42,122,0.2);
+  color: var(--blue); width: 36px; height: 36px;
+  border-radius: 50%; font-size: 1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.edit-modal-close:hover { background: #1e2a7a; color: #fff; border-color: #1e2a7a; }
+.edit-form { display: flex; flex-direction: column; gap: 0.85rem; }
+.edit-form input, .edit-form textarea, .edit-form select {
+  background: #fff; border: 1px solid rgba(30,42,122,0.18);
+  border-radius: var(--r); padding: 0.7rem 1rem;
+  color: #1a1a2e; font-family: 'Barlow', sans-serif;
+  font-size: 0.9rem; outline: none; width: 100%;
+  transition: border-color 0.2s; -webkit-appearance: none; appearance: none;
+}
+.edit-form input:focus, .edit-form textarea:focus, .edit-form select:focus {
+  border-color: var(--sky); box-shadow: 0 0 0 3px rgba(41,182,246,0.15);
+}
+.edit-form textarea { min-height: 80px; resize: vertical; }
+.edit-msg {
+  font-size: 0.82rem; padding: 0.6rem 0.9rem;
+  border-radius: 6px; display: none;
+}
+.edit-msg.error   { background: rgba(248,113,113,0.12); color: #c53030; display: block; }
+.edit-msg.success { background: rgba(41,182,246,0.12);  color: #1a6fa0; display: block; }
 </style>
 </head>
 <body>
@@ -1150,24 +1230,30 @@ function renderCards() {
     container.innerHTML = `<div class="works-empty">No hay trabajos en esta categoría todavía.</div>`;
     return;
   }
-  container.innerHTML = list.map((w, i) => `
-    <div class="work-card" data-idx="${allWorks.indexOf(w)}"
-         style="animation:cardIn 0.45s ${i * 0.06}s ease both;">
-      <div class="work-thumb">
-        ${w.imagen
-          ? `<img src="${w.imagen}" alt="${w.titulo}" loading="lazy"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-             <div class="work-thumb-placeholder" style="display:none">${iconFor(w.categoria)}</div>`
-          : `<div class="work-thumb-placeholder">${iconFor(w.categoria)}</div>`
-        }
-      </div>
-      <div class="work-info">
-        <div class="work-tag">${w.categoria || 'Trabajo'}</div>
-        <div class="work-title">${w.titulo}</div>
-        ${w.localizacion ? `<div class="work-location">📍 ${w.localizacion}</div>` : ''}
-      </div>
+container.innerHTML = list.map((w, i) => `
+  <div class="work-card" data-idx="${allWorks.indexOf(w)}"
+       style="animation:cardIn 0.45s ${i * 0.06}s ease both;">
+    <div class="work-thumb">
+      ${w.imagen
+        ? `<img src="${w.imagen}" alt="${w.titulo}" loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+           <div class="work-thumb-placeholder" style="display:none">${iconFor(w.categoria)}</div>`
+        : `<div class="work-thumb-placeholder">${iconFor(w.categoria)}</div>`
+      }
     </div>
-  `).join('');
+    <div class="work-info">
+      <div class="work-tag">${w.categoria || 'Trabajo'}</div>
+      <div class="work-title">${w.titulo}</div>
+      ${w.localizacion ? `<div class="work-location">📍 ${w.localizacion}</div>` : ''}
+    </div>
+    ${currentUser && w.id ? `
+      <div class="work-admin-actions" onclick="event.stopPropagation()">
+        <button class="work-edit-btn" data-id="${w.id}">✏️ Editar</button>
+        <button class="work-delete-btn" data-id="${w.id}">🗑️ Eliminar</button>
+      </div>
+    ` : ''}
+  </div>
+`).join('');
 
   container.querySelectorAll('.work-card').forEach(card => {
     card.addEventListener('click', () => openLightbox(allWorks[+card.dataset.idx]));
@@ -1473,8 +1559,129 @@ const observer = new IntersectionObserver(
   { threshold: 0.12 }
 );
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+/* ════════════════════════════════════════════════════════════
+   ▶  EDITAR Y ELIMINAR TRABAJOS
+   ════════════════════════════════════════════════════════════ */
+const editOverlay  = document.getElementById('edit-modal-overlay');
+const editMsgEl    = document.getElementById('edit-msg');
+const editSaveBtn  = document.getElementById('edit-save-btn');
+const editBtnText  = document.getElementById('edit-btn-text');
+const editSpinner  = document.getElementById('edit-spinner');
 
+function openEditModal(trabajo) {
+  document.getElementById('edit-id').value           = trabajo.id;
+  document.getElementById('edit-titulo').value       = trabajo.titulo      || '';
+  document.getElementById('edit-categoria').value    = trabajo.categoria   || '';
+  document.getElementById('edit-localizacion').value = trabajo.localizacion|| '';
+  document.getElementById('edit-descripcion').value  = trabajo.descripcion || '';
+  editMsgEl.className = 'edit-msg';
+  editMsgEl.textContent = '';
+  editOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeEditModal() {
+  editOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('edit-modal-close').addEventListener('click', closeEditModal);
+document.getElementById('edit-cancel-btn').addEventListener('click', closeEditModal);
+editOverlay.addEventListener('click', e => { if (e.target === editOverlay) closeEditModal(); });
+
+/* Guardar edición */
+editSaveBtn.addEventListener('click', async () => {
+  const id          = document.getElementById('edit-id').value;
+  const titulo      = document.getElementById('edit-titulo').value.trim();
+  const categoria   = document.getElementById('edit-categoria').value;
+  const localizacion= document.getElementById('edit-localizacion').value.trim();
+  const descripcion = document.getElementById('edit-descripcion').value.trim();
+
+  if (!titulo || !categoria) {
+    editMsgEl.className = 'edit-msg error';
+    editMsgEl.textContent = '⚠ Título y categoría son obligatorios.';
+    return;
+  }
+
+  editSpinner.style.display = 'inline-block';
+  editSaveBtn.disabled = true;
+
+  const { error } = await supabase
+    .from('trabajos')
+    .update({ titulo, categoria, localizacion, descripcion })
+    .eq('id', id);
+
+  if (error) {
+    editMsgEl.className = 'edit-msg error';
+    editMsgEl.textContent = '❌ Error al guardar: ' + error.message;
+  } else {
+    editMsgEl.className = 'edit-msg success';
+    editMsgEl.textContent = '✅ ¡Trabajo actualizado!';
+    await cargarTrabajos();
+    setTimeout(closeEditModal, 1000);
+  }
+
+  editSpinner.style.display = 'none';
+  editSaveBtn.disabled = false;
+});
+
+/* Delegación de eventos para editar y eliminar */
+container.addEventListener('click', async e => {
+  const editBtn   = e.target.closest('.work-edit-btn');
+  const deleteBtn = e.target.closest('.work-delete-btn');
+
+  if (editBtn) {
+    const trabajo = allWorks.find(w => w.id === editBtn.dataset.id);
+    if (trabajo) openEditModal(trabajo);
+  }
+
+  if (deleteBtn) {
+    const confirmar = confirm('¿Seguro que querés eliminar este trabajo? Esta acción no se puede deshacer.');
+    if (!confirmar) return;
+
+    const { error } = await supabase
+      .from('trabajos')
+      .delete()
+      .eq('id', deleteBtn.dataset.id);
+
+    if (error) {
+      alert('❌ Error al eliminar: ' + error.message);
+    } else {
+      await cargarTrabajos();
+    }
+  }
+});
 </script>
+   <!-- MODAL EDITAR TRABAJO -->
+<div class="edit-modal-overlay" id="edit-modal-overlay">
+  <div class="edit-modal">
+    <button class="edit-modal-close" id="edit-modal-close">✕</button>
+    <h4>EDITAR TRABAJO</h4>
+    <div class="edit-form">
+      <input type="hidden" id="edit-id">
+      <input type="text"   id="edit-titulo"      placeholder="Título">
+      <select id="edit-categoria">
+        <option value="">Categoría...</option>
+        <option>Electricidad</option>
+        <option>Construcción</option>
+        <option>Iluminación</option>
+        <option>Industrial</option>
+        <option>Plomería</option>
+        <option>Certificación</option>
+        <option>Mantenimiento</option>
+      </select>
+      <input type="text"   id="edit-localizacion" placeholder="Localización">
+      <textarea            id="edit-descripcion"  placeholder="Descripción..."></textarea>
+      <div class="edit-msg" id="edit-msg"></div>
+      <div style="display:flex;gap:0.75rem;">
+        <button class="btn btn-primary" id="edit-save-btn" style="flex:1;gap:0.5rem;">
+          <span id="edit-btn-text">Guardar cambios</span>
+          <span class="btn-spinner" id="edit-spinner"></span>
+        </button>
+        <button class="btn btn-outline" id="edit-cancel-btn" style="flex:1;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 
