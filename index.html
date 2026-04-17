@@ -374,382 +374,6 @@ p { line-height: 1.6; }
   color: var(--yellow); font-family: 'Barlow Condensed', sans-serif;
 }
 .work-title {
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="favikon.png" type="image/png">
-<title>AMB CHACO CONSTRUCCIONES — Portfolio Profesional</title>
-<meta name="description" content="Empresa de construcciones y refacciones en Resistencia Chaco. Electricidad, plomería, remodelaciones y obras profesionales.">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet">
-<style>
-
-/* ══════════════════════════════════
-   VARIABLES & RESET
-══════════════════════════════════ */
-:root {
-  --blue: #1e2a7a;
-  --blue-dim: #162060;
-  --sky: #29b6f6;
-  --sky-dim: #1a8fd1;
-  --yellow: #29b6f6;
-  --yellow-dim: #1a8fd1;
-  --dark: #f8faff;
-  --dark2: #f4f6fb;
-  --dark3: #eaf0f8;
-  --bg-soft: #eef2fa;
-  --light: #1a1a2e;
-  --pad: clamp(1rem, 5vw, 5rem);
-  --r: 10px;
-  --muted: #4a5568;
-  --nav-h: 64px;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--dark);
-  color: #1a1a2e;
-  font-family: 'Barlow', sans-serif;
-  font-weight: 300;
-  overflow-x: hidden;
-  min-width: 320px;
-}
-
-img { max-width: 100%; display: block; }
-
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 0%,   rgba(30,42,122,0.07) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 50% at 90% 100%,  rgba(41,182,246,0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 30% at 50% 50%,   rgba(30,42,122,0.03) 0%, transparent 70%);
-  pointer-events: none; z-index: 0;
-}
-
-/* ══ Typography ══ */
-.section-label {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: clamp(0.68rem, 1.5vw, 0.82rem);
-  letter-spacing: 4px; text-transform: uppercase;
-  color: var(--yellow); margin-bottom: 0.6rem;
-}
-.section-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(2rem, 6vw, 4rem);
-  letter-spacing: 2px; line-height: 1;
-  color: var(--light); margin-bottom: 1rem;
-}
-.section-desc {
-  color: var(--muted); line-height: 1.8;
-  font-size: clamp(0.88rem, 2vw, 1rem); max-width: 560px;
-}
-
-/* ══ Buttons ══ */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: 0.4rem;
-  padding: clamp(0.7rem, 2vw, 0.9rem) clamp(1.2rem, 4vw, 2rem);
-  border-radius: var(--r);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700; font-size: clamp(0.85rem, 2vw, 1rem);
-  letter-spacing: 1.5px; text-transform: uppercase;
-  text-decoration: none; transition: all 0.2s;
-  cursor: pointer; border: none; white-space: nowrap;
-  -webkit-tap-highlight-color: transparent;
-}
-.btn-primary { background: #1e2a7a; color: #fff; box-shadow: 0 4px 18px rgba(30,42,122,0.3); }
-.btn-primary:hover { background: #162060; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(30,42,122,0.3); }
-.btn-outline { background: transparent; color: var(--blue); border: 1px solid rgba(30,42,122,0.3); }
-.btn-outline:hover { border-color: var(--sky); color: var(--sky-dim); transform: translateY(-2px); }
-
-@media (max-width: 360px) {
-  .btn { width: 100%; }
-  .hero-actions { flex-direction: column; }
-}
-
-/* ══════════════════════════════════
-   NAVBAR
-══════════════════════════════════ */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-  height: var(--nav-h);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 var(--pad);
-  background: rgba(255,255,255,0.97);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(30,42,122,0.12);
-  box-shadow: 0 2px 20px rgba(30,42,122,0.08);
-  gap: 1rem;
-}
-
-.logo {
-  display: flex; align-items: center; gap: 0.55rem;
-  text-decoration: none; flex-shrink: 0; z-index: 101;
-}
-.logo-icon {
-  width: 38px; height: 38px; background: transparent;
-  border-radius: 6px; display: flex; align-items: center;
-  justify-content: center; font-size: 1.25rem; flex-shrink: 0;
-}
-.logo-text {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(0.95rem, 2.5vw, 1.3rem);
-  letter-spacing: 2px; color: #1a1a2e; line-height: 1;
-}
-.logo-text span { color: var(--yellow); }
-
-.nav-links {
-  display: flex; align-items: center;
-  gap: clamp(1rem, 2.5vw, 2rem); list-style: none;
-}
-.nav-links a {
-  text-decoration: none; color: #2d3748;
-  font-family: 'Barlow Condensed', sans-serif; font-weight: 500;
-  font-size: 0.88rem; letter-spacing: 1.5px; text-transform: uppercase;
-  transition: color 0.2s; white-space: nowrap;
-}
-.nav-links a:hover { color: var(--yellow); }
-.nav-cta {
-  background: #1e2a7a !important; color: #fff !important;
-  padding: 0.4rem 1rem; border-radius: 4px; font-weight: 700 !important;
-}
-.nav-cta:hover { background: #162060 !important; color: #fff !important; }
-
-.hamburger {
-  display: none; flex-direction: column; gap: 5px;
-  cursor: pointer; background: none; border: none;
-  padding: 8px; flex-shrink: 0; z-index: 101;
-  -webkit-tap-highlight-color: transparent;
-}
-.hamburger span {
-  display: block; width: 24px; height: 2px;
-  background: var(--blue); border-radius: 2px; transition: all 0.3s;
-}
-.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
-.nav-overlay {
-  position: fixed; inset: 0; background: rgba(30,42,122,0.4);
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.3s ease; z-index: 90;
-  backdrop-filter: blur(2px);
-}
-.nav-overlay.open { opacity: 1; pointer-events: auto; }
-
-@media (max-width: 820px) {
-  .hamburger { display: flex; }
-  .nav-links {
-    position: fixed; top: 0; right: 0;
-    width: min(75vw, 300px); height: 100dvh;
-    background: rgba(255,255,255,0.99);
-    border-left: 1px solid rgba(30,42,122,0.15);
-    flex-direction: column; justify-content: center;
-    align-items: center; gap: 0;
-    transform: translateX(100%);
-    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-    z-index: 100; padding: 2rem 1.5rem;
-  }
-  .nav-links.open { transform: translateX(0); }
-  .nav-links li { width: 100%; border-bottom: 1px solid rgba(30,42,122,0.1); }
-  .nav-links li:first-child { border-top: 1px solid rgba(30,42,122,0.1); }
-  .nav-links a { display: block; padding: 1rem 0; font-size: 1.1rem; letter-spacing: 2px; text-align: center; color: #1a1a2e; }
-  .nav-cta { background: transparent !important; color: var(--sky-dim) !important; border-radius: 0 !important; padding: 1rem 0 !important; }
-}
-body.menu-open { overflow: hidden; }
-
-/* ══════════════════════════════════
-   HERO
-══════════════════════════════════ */
-#hero {
-  min-height: 100svh; min-height: 100vh;
-  display: flex; align-items: center;
-  padding: calc(var(--nav-h) + clamp(3rem, 8vw, 5rem)) var(--pad) clamp(3rem, 6vw, 5rem);
-  position: relative; overflow: hidden;
-}
-.hero-bg {
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 70% 60% at 75% 45%, rgba(30,42,122,0.10) 0%, transparent 65%),
-    radial-gradient(ellipse 40% 40% at 20% 80%,  rgba(41,182,246,0.06) 0%, transparent 60%),
-    repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(30,42,122,0.055) 80px, rgba(30,42,122,0.055) 81px),
-    repeating-linear-gradient(0deg, transparent, transparent 80px, rgba(30,42,122,0.055) 80px, rgba(30,42,122,0.055) 81px);
-}
-.hero-content { position: relative; z-index: 1; width: 100%; max-width: 720px; }
-
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  background: rgba(30,42,122,0.07); border: 1px solid rgba(30,42,122,0.2);
-  box-shadow: 0 2px 10px rgba(30,42,122,0.1);
-  color: var(--blue); padding: 0.35rem 0.9rem; border-radius: 100px;
-  font-size: clamp(0.62rem, 1.5vw, 0.78rem);
-  font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.2rem;
-  animation: fadeUp 0.6s ease both;
-}
-h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(2.6rem, 9vw, 7.5rem);
-  line-height: 0.95; letter-spacing: 2px; color: var(--light);
-  animation: fadeUp 0.7s 0.1s ease both;
-  word-break: break-word; hyphens: auto;
-}
-h1 .accent { color: var(--yellow); }
-.hero-sub {
-  margin-top: 1.25rem; font-size: clamp(0.9rem, 2.5vw, 1.15rem);
-  color: var(--muted); max-width: 520px; line-height: 1.75;
-  animation: fadeUp 0.7s 0.2s ease both;
-}
-.hero-sub-2 {
-  opacity: .75; margin-top: 0.5rem;
-  font-size: clamp(0.82rem, 1.8vw, 0.95rem); color: var(--muted);
-  animation: fadeUp 0.7s 0.25s ease both;
-}
-.hero-actions {
-  margin-top: 2rem; display: flex; gap: 0.75rem; flex-wrap: wrap;
-  animation: fadeUp 0.7s 0.3s ease both;
-}
-.hero-stats {
-  margin-top: 2.5rem; display: flex; gap: clamp(1.2rem, 4vw, 3rem); flex-wrap: wrap;
-  animation: fadeUp 0.7s 0.4s ease both;
-  padding-top: 2rem; border-top: 1px solid rgba(30,42,122,0.12);
-}
-.stat-item { min-width: 80px; }
-.stat-num { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.8rem, 5vw, 3rem); color: var(--yellow); line-height: 1; }
-.stat-label { font-size: clamp(0.65rem, 1.5vw, 0.78rem); color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 0.15rem; }
-
-/* ══════════════════════════════════
-   SECTION BASE
-══════════════════════════════════ */
-p { line-height: 1.6; }
-.sec { padding: clamp(3.5rem, 8vw, 5rem) var(--pad); }
-.sec-alt { 
-  background: var(--bg-soft); 
-  box-shadow: inset 0 2px 20px rgba(30,42,122,0.04), inset 0 -2px 20px rgba(30,42,122,0.04);
-}
-
-/* ══════════════════════════════════
-   SERVICIOS
-══════════════════════════════════ */
-.services-grid {
-  margin-top: clamp(2rem, 5vw, 3.5rem);
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 1.5px; background: rgba(30,42,122,0.08);
-  border: 1px solid rgba(30,42,122,0.1);
-  border-radius: var(--r); overflow: hidden;
-}
-@media (max-width: 900px) { .services-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 500px)  { .services-grid { grid-template-columns: 1fr; } }
-
-.service-card {
-  background: #ffffff;
-  padding: clamp(1.4rem, 4vw, 2.5rem) clamp(1.1rem, 3vw, 2rem);
-  transition: background 0.25s, box-shadow 0.3s, transform 0.3s;
-  position: relative; overflow: hidden;
-  box-shadow: 0 2px 12px rgba(30,42,122,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
-}
-.service-card::after {
-  content: ''; position: absolute; bottom: 0; left: 0;
-  width: 0; height: 3px; background: var(--yellow); transition: width 0.35s ease;
-}
-.service-card:hover { background: var(--dark3); box-shadow: 0 8px 32px rgba(30,42,122,0.14); transform: translateY(-2px); }
-.service-card:hover::after { width: 100%; }
-.service-icon { font-size: clamp(1.8rem, 4vw, 2.4rem); margin-bottom: 0.85rem; display: block; }
-.service-name {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: clamp(0.95rem, 2.5vw, 1.2rem); font-weight: 700;
-  letter-spacing: 1px; color: var(--light); text-transform: uppercase; margin-bottom: 0.5rem;
-}
-.service-desc { font-size: clamp(0.8rem, 1.8vw, 0.9rem); color: var(--muted); line-height: 1.7; }
-
-/* ══════════════════════════════════
-   TRABAJOS
-══════════════════════════════════ */
-.works-filters {
-  display: flex; gap: 0.5rem; flex-wrap: wrap;
-  margin-top: clamp(1.5rem, 4vw, 2.5rem);
-}
-.filter-btn {
-  padding: 0.35rem 1rem;
-  background: transparent;
-  border: 1px solid rgba(30,42,122,0.18);
-  color: var(--muted); border-radius: 100px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase;
-  cursor: pointer; transition: all 0.2s;
-  -webkit-tap-highlight-color: transparent;
-}
-.filter-btn:hover { border-color: var(--yellow); color: var(--yellow); }
-.filter-btn.active { background: #1e2a7a; border-color: #1e2a7a; color: #fff; font-weight: 700; }
-
-.works-grid {
-  margin-top: clamp(1.5rem, 4vw, 2.5rem);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(0.6rem, 1.5vw, 1rem);
-}
-@media (max-width: 900px) { .works-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 480px) { .works-grid { grid-template-columns: 1fr; } }
-
-.works-loading {
-  grid-column: 1 / -1;
-  display: flex; flex-direction: column; align-items: center;
-  gap: 1rem; padding: 4rem 0; color: var(--muted);
-}
-.spinner {
-  width: 36px; height: 36px;
-  border: 3px solid rgba(41,182,246,0.2);
-  border-top-color: var(--yellow);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-.works-error {
-  grid-column: 1 / -1; text-align: center; padding: 3rem 0;
-  color: var(--muted); font-size: 0.9rem; line-height: 1.8;
-}
-.works-empty {
-  grid-column: 1 / -1; text-align: center; padding: 3rem 0; color: var(--muted);
-}
-
-/* Tarjeta de trabajo */
-.work-card {
-  background: #ffffff;
-  border: 1px solid rgba(30,42,122,0.1);
-  border-radius: var(--r); overflow: hidden; cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
-  display: flex; flex-direction: column;
-  box-shadow: 0 2px 14px rgba(30,42,122,0.08);
-}
-.work-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(30,42,122,0.18), 0 0 0 1px rgba(30,42,122,0.08); }
-@media (hover: none) { .work-card:active { transform: scale(0.98); } }
-
-.work-thumb {
-  height: clamp(150px, 20vw, 230px);
-  overflow: hidden; position: relative;
-  background: var(--dark2);
-  display: flex; align-items: center; justify-content: center;
-}
-.work-thumb img {
-  width: 100%; height: 100%;
-  object-fit: cover; display: block;
-  transition: transform 0.45s ease;
-}
-.work-card:hover .work-thumb img { transform: scale(1.06); }
-.work-thumb-placeholder { font-size: clamp(2.2rem, 5vw, 3.5rem); opacity: 0.5; }
-
-.work-info {
-  padding: clamp(0.85rem, 2vw, 1.25rem) clamp(0.9rem, 2.5vw, 1.4rem);
-  display: flex; flex-direction: column; gap: 0.25rem; flex: 1;
-}
-.work-tag {
-  font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--yellow); font-family: 'Barlow Condensed', sans-serif;
-}
-.work-title {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: clamp(0.9rem, 2vw, 1.08rem); font-weight: 700;
   color: var(--light); text-transform: uppercase; letter-spacing: 0.5px;
@@ -1114,86 +738,6 @@ footer {
   animation: spin 0.7s linear infinite;
   display: none;
 }
-   .work-admin-actions {
-  display: flex; gap: 0.5rem;
-  padding: 0.6rem 0.9rem;
-  border-top: 1px solid rgba(30,42,122,0.08);
-  background: rgba(30,42,122,0.02);
-}
-.work-edit-btn, .work-delete-btn {
-  flex: 1; padding: 0.4rem 0.5rem;
-  border: none; border-radius: 6px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.78rem; letter-spacing: 1px;
-  text-transform: uppercase; font-weight: 700;
-  cursor: pointer; transition: all 0.2s;
-}
-.work-edit-btn {
-  background: rgba(30,42,122,0.08);
-  color: var(--blue);
-  border: 1px solid rgba(30,42,122,0.2);
-}
-.work-edit-btn:hover { background: #1e2a7a; color: #fff; }
-.work-delete-btn {
-  background: rgba(220,38,38,0.07);
-  color: #c53030;
-  border: 1px solid rgba(220,38,38,0.2);
-}
-.work-delete-btn:hover { background: #c53030; color: #fff; }
-
-/* Modal de edición */
-.edit-modal-overlay {
-  position: fixed; inset: 0; z-index: 3500;
-  background: rgba(20,30,80,0.88);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.3s ease; padding: 1rem;
-  backdrop-filter: blur(6px);
-}
-.edit-modal-overlay.open { opacity: 1; pointer-events: auto; }
-.edit-modal {
-  background: #fff;
-  border: 1px solid rgba(30,42,122,0.2);
-  border-radius: calc(var(--r) * 1.5);
-  box-shadow: 0 30px 80px rgba(20,30,80,0.35);
-  padding: clamp(1.5rem, 5vw, 2.5rem);
-  width: 100%; max-width: 480px;
-  transform: scale(0.92); transition: transform 0.3s ease;
-  position: relative; max-height: 90dvh; overflow-y: auto;
-}
-.edit-modal-overlay.open .edit-modal { transform: scale(1); }
-.edit-modal h4 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.6rem; letter-spacing: 2px;
-  color: var(--light); margin-bottom: 1.25rem;
-}
-.edit-modal-close {
-  position: absolute; top: 0.75rem; right: 0.75rem;
-  background: rgba(30,42,122,0.08); border: 1px solid rgba(30,42,122,0.2);
-  color: var(--blue); width: 36px; height: 36px;
-  border-radius: 50%; font-size: 1rem; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s;
-}
-.edit-modal-close:hover { background: #1e2a7a; color: #fff; border-color: #1e2a7a; }
-.edit-form { display: flex; flex-direction: column; gap: 0.85rem; }
-.edit-form input, .edit-form textarea, .edit-form select {
-  background: #fff; border: 1px solid rgba(30,42,122,0.18);
-  border-radius: var(--r); padding: 0.7rem 1rem;
-  color: #1a1a2e; font-family: 'Barlow', sans-serif;
-  font-size: 0.9rem; outline: none; width: 100%;
-  transition: border-color 0.2s; -webkit-appearance: none; appearance: none;
-}
-.edit-form input:focus, .edit-form textarea:focus, .edit-form select:focus {
-  border-color: var(--sky); box-shadow: 0 0 0 3px rgba(41,182,246,0.15);
-}
-.edit-form textarea { min-height: 80px; resize: vertical; }
-.edit-msg {
-  font-size: 0.82rem; padding: 0.6rem 0.9rem;
-  border-radius: 6px; display: none;
-}
-.edit-msg.error   { background: rgba(248,113,113,0.12); color: #c53030; display: block; }
-.edit-msg.success { background: rgba(41,182,246,0.12);  color: #1a6fa0; display: block; }
 </style>
 </head>
 <body>
@@ -1469,38 +1013,6 @@ footer {
   </div>
 </div>
 
-<!-- MODAL EDITAR TRABAJO -->
-<div class="edit-modal-overlay" id="edit-modal-overlay">
-  <div class="edit-modal">
-    <button class="edit-modal-close" id="edit-modal-close">✕</button>
-    <h4>EDITAR TRABAJO</h4>
-    <div class="edit-form">
-      <input type="hidden" id="edit-id">
-      <input type="text"   id="edit-titulo"      placeholder="Título">
-      <select id="edit-categoria">
-        <option value="">Categoría...</option>
-        <option>Electricidad</option>
-        <option>Construcción</option>
-        <option>Iluminación</option>
-        <option>Industrial</option>
-        <option>Plomería</option>
-        <option>Certificación</option>
-        <option>Mantenimiento</option>
-      </select>
-      <input type="text"   id="edit-localizacion" placeholder="Localización">
-      <textarea            id="edit-descripcion"  placeholder="Descripción..."></textarea>
-      <div class="edit-msg" id="edit-msg"></div>
-      <div style="display:flex;gap:0.75rem;">
-        <button class="btn btn-primary" id="edit-save-btn" style="flex:1;gap:0.5rem;">
-          <span id="edit-btn-text">Guardar cambios</span>
-          <span class="btn-spinner" id="edit-spinner"></span>
-        </button>
-        <button class="btn btn-outline" id="edit-cancel-btn" style="flex:1;">Cancelar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script type="module">
 /* ════════════════════════════════════════════════════════════
    ▶  SUPABASE CONFIG
@@ -1575,7 +1087,7 @@ const closeMenu = () => { navLinks.classList.remove('open'); hamburger.classList
 hamburger.addEventListener('click', e => { e.stopPropagation(); navLinks.classList.contains('open') ? closeMenu() : openMenu(); });
 navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
 overlay.addEventListener('click', closeMenu);
-document.addEventListener('keydown', e => { if (e.key==='Escape') { closeMenu(); closeLightbox(); if(typeof closeAuthModal==='function') closeAuthModal(); if(typeof closeEditModal==='function') closeEditModal(); } });
+document.addEventListener('keydown', e => { if (e.key==='Escape') { closeMenu(); closeLightbox(); closeAuthModal(); } });
 
 /* ── Lightbox ── */
 const lb        = document.getElementById('lightbox');
@@ -1638,36 +1150,27 @@ function renderCards() {
     container.innerHTML = `<div class="works-empty">No hay trabajos en esta categoría todavía.</div>`;
     return;
   }
-container.innerHTML = list.map((w, i) => `
-  <div class="work-card" data-idx="${allWorks.indexOf(w)}"
-       style="animation:cardIn 0.45s ${i * 0.06}s ease both;">
-    <div class="work-thumb">
-      ${w.imagen
-        ? `<img src="${w.imagen}" alt="${w.titulo}" loading="lazy"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-           <div class="work-thumb-placeholder" style="display:none">${iconFor(w.categoria)}</div>`
-        : `<div class="work-thumb-placeholder">${iconFor(w.categoria)}</div>`
-      }
-    </div>
-    <div class="work-info">
-      <div class="work-tag">${w.categoria || 'Trabajo'}</div>
-      <div class="work-title">${w.titulo}</div>
-      ${w.localizacion ? `<div class="work-location">📍 ${w.localizacion}</div>` : ''}
-    </div>
-    ${currentUser && w.id ? `
-      <div class="work-admin-actions" onclick="event.stopPropagation()">
-        <button class="work-edit-btn" data-id="${w.id}">✏️ Editar</button>
-        <button class="work-delete-btn" data-id="${w.id}">🗑️ Eliminar</button>
+  container.innerHTML = list.map((w, i) => `
+    <div class="work-card" data-idx="${allWorks.indexOf(w)}"
+         style="animation:cardIn 0.45s ${i * 0.06}s ease both;">
+      <div class="work-thumb">
+        ${w.imagen
+          ? `<img src="${w.imagen}" alt="${w.titulo}" loading="lazy"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+             <div class="work-thumb-placeholder" style="display:none">${iconFor(w.categoria)}</div>`
+          : `<div class="work-thumb-placeholder">${iconFor(w.categoria)}</div>`
+        }
       </div>
-    ` : ''}
-  </div>
-`).join('');
+      <div class="work-info">
+        <div class="work-tag">${w.categoria || 'Trabajo'}</div>
+        <div class="work-title">${w.titulo}</div>
+        ${w.localizacion ? `<div class="work-location">📍 ${w.localizacion}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
 
   container.querySelectorAll('.work-card').forEach(card => {
-    card.addEventListener('click', (e) => {
-      if (e.target.closest('.work-admin-actions')) return;
-      openLightbox(allWorks[+card.dataset.idx]);
-    });
+    card.addEventListener('click', () => openLightbox(allWorks[+card.dataset.idx]));
   });
 }
 
@@ -1680,7 +1183,6 @@ async function cargarTrabajos() {
       .order('created_at', { ascending: false });
 
     const dbWorks = (error || !data) ? [] : data.map(r => ({
-      id: r.id,
       titulo: r.titulo,
       categoria: r.categoria,
       localizacion: r.localizacion,
@@ -1758,7 +1260,6 @@ function updateNavBtn() {
     navAdminBtn.classList.remove('logged');
     addWorkPanel.classList.remove('visible');
   }
-  renderCards();
 }
 
 navAdminBtn.addEventListener('click', openAuthModal);
@@ -1972,97 +1473,7 @@ const observer = new IntersectionObserver(
   { threshold: 0.12 }
 );
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-/* ════════════════════════════════════════════════════════════
-   ▶  EDITAR Y ELIMINAR TRABAJOS
-   ════════════════════════════════════════════════════════════ */
-const editOverlay  = document.getElementById('edit-modal-overlay');
-const editMsgEl    = document.getElementById('edit-msg');
-const editSaveBtn  = document.getElementById('edit-save-btn');
-const editBtnText  = document.getElementById('edit-btn-text');
-const editSpinner  = document.getElementById('edit-spinner');
 
-function openEditModal(trabajo) {
-  document.getElementById('edit-id').value           = trabajo.id;
-  document.getElementById('edit-titulo').value       = trabajo.titulo      || '';
-  document.getElementById('edit-categoria').value    = trabajo.categoria   || '';
-  document.getElementById('edit-localizacion').value = trabajo.localizacion|| '';
-  document.getElementById('edit-descripcion').value  = trabajo.descripcion || '';
-  editMsgEl.className = 'edit-msg';
-  editMsgEl.textContent = '';
-  editOverlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeEditModal() {
-  editOverlay.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-document.getElementById('edit-modal-close').addEventListener('click', closeEditModal);
-document.getElementById('edit-cancel-btn').addEventListener('click', closeEditModal);
-editOverlay.addEventListener('click', e => { if (e.target === editOverlay) closeEditModal(); });
-
-/* Guardar edición */
-editSaveBtn.addEventListener('click', async () => {
-  const id          = document.getElementById('edit-id').value;
-  const titulo      = document.getElementById('edit-titulo').value.trim();
-  const categoria   = document.getElementById('edit-categoria').value;
-  const localizacion= document.getElementById('edit-localizacion').value.trim();
-  const descripcion = document.getElementById('edit-descripcion').value.trim();
-
-  if (!titulo || !categoria) {
-    editMsgEl.className = 'edit-msg error';
-    editMsgEl.textContent = '⚠ Título y categoría son obligatorios.';
-    return;
-  }
-
-  editSpinner.style.display = 'inline-block';
-  editSaveBtn.disabled = true;
-
-  const { error } = await supabase
-    .from('trabajos')
-    .update({ titulo, categoria, localizacion, descripcion })
-    .eq('id', id);
-
-  if (error) {
-    editMsgEl.className = 'edit-msg error';
-    editMsgEl.textContent = '❌ Error al guardar: ' + error.message;
-  } else {
-    editMsgEl.className = 'edit-msg success';
-    editMsgEl.textContent = '✅ ¡Trabajo actualizado!';
-    await cargarTrabajos();
-    setTimeout(closeEditModal, 1000);
-  }
-
-  editSpinner.style.display = 'none';
-  editSaveBtn.disabled = false;
-});
-
-/* Delegación de eventos para editar y eliminar */
-container.addEventListener('click', async e => {
-  const editBtn   = e.target.closest('.work-edit-btn');
-  const deleteBtn = e.target.closest('.work-delete-btn');
-
-  if (editBtn) {
-    const trabajo = allWorks.find(w => w.id === editBtn.dataset.id);
-    if (trabajo) openEditModal(trabajo);
-  }
-
-  if (deleteBtn) {
-    const confirmar = confirm('¿Seguro que querés eliminar este trabajo? Esta acción no se puede deshacer.');
-    if (!confirmar) return;
-
-    const { error } = await supabase
-      .from('trabajos')
-      .delete()
-      .eq('id', deleteBtn.dataset.id);
-
-    if (error) {
-      alert('❌ Error al eliminar: ' + error.message);
-    } else {
-      await cargarTrabajos();
-    }
-  }
-});
 </script>
 </body>
 </html>
