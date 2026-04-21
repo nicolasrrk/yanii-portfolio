@@ -272,41 +272,6 @@ p { line-height: 1.6; }
   background: var(--bg-soft); 
   box-shadow: inset 0 2px 20px rgba(30,42,122,0.04), inset 0 -2px 20px rgba(30,42,122,0.04);
 }
-
-/* ══════════════════════════════════
-   SERVICIOS
-══════════════════════════════════ */
-.services-grid {
-  margin-top: clamp(2rem, 5vw, 3.5rem);
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 1.5px; background: rgba(30,42,122,0.08);
-  border: 1px solid rgba(30,42,122,0.1);
-  border-radius: var(--r); overflow: hidden;
-}
-@media (max-width: 900px) { .services-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 500px)  { .services-grid { grid-template-columns: 1fr; } }
-
-.service-card {
-  background: #ffffff;
-  padding: clamp(1.4rem, 4vw, 2.5rem) clamp(1.1rem, 3vw, 2rem);
-  transition: background 0.25s, box-shadow 0.3s, transform 0.3s;
-  position: relative; overflow: hidden;
-  box-shadow: 0 2px 12px rgba(30,42,122,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
-}
-.service-card::after {
-  content: ''; position: absolute; bottom: 0; left: 0;
-  width: 0; height: 3px; background: var(--yellow); transition: width 0.35s ease;
-}
-.service-card:hover { background: var(--dark3); box-shadow: 0 8px 32px rgba(30,42,122,0.14); transform: translateY(-2px); }
-.service-card:hover::after { width: 100%; }
-.service-icon { font-size: clamp(1.8rem, 4vw, 2.4rem); margin-bottom: 0.85rem; display: block; }
-.service-name {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: clamp(0.95rem, 2.5vw, 1.2rem); font-weight: 700;
-  letter-spacing: 1px; color: var(--light); text-transform: uppercase; margin-bottom: 0.5rem;
-}
-.service-desc { font-size: clamp(0.8rem, 1.8vw, 0.9rem); color: var(--muted); line-height: 1.7; }
-
 /* ══════════════════════════════════
    TRABAJOS
 ══════════════════════════════════ */
@@ -902,7 +867,7 @@ body.admin-logged .work-card-admin-btns { display: flex; }
     <div class="about-visual reveal">
       <div class="about-img-box">
         <span>👷</span>
-        <span class="about-img-label">Tu foto aquí</span>
+        <img src="img/foto.jpg" alt="Mi foto" class="about-img-label">
       </div>
       <div class="about-badge">MAT.<br>HABILITADO</div>
     </div>
@@ -1052,15 +1017,12 @@ body.admin-logged .work-card-admin-btns { display: flex; }
 <script type="module">
 /* ════════════════════════════════════════════════════════════
    ▶  SUPABASE CONFIG
-   ════════════════════════════════════════════════════════════
-   Reemplazá SUPABASE_URL y SUPABASE_ANON_KEY con los valores
-   de tu proyecto en https://supabase.com/dashboard/project/_/settings/api
-   ═══════════════════════════════════════════════════════════ */
+   ════════════════════════════════════════════════════════════ */
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const SUPABASE_URL      = 'https://jfvyifgegupizdohyynn.supabase.co';       // ← Reemplazá
+const SUPABASE_URL      = 'https://jfvyifgegupizdohyynn.supabase.co';      
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmdnlpZmdlZ3VwaXpkb2h5eW5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjA4NTksImV4cCI6MjA5MjAzNjg1OX0.XkVRUOn2f3E-TMeyn5RwEeCvh00ES8YcJjuvfT638Y4';                           // ← Reemplazá
-const STORAGE_BUCKET    = 'trabajos-imagenes';                     // ← Nombre del bucket en Storage
+const STORAGE_BUCKET    = 'trabajos-imagenes';                     
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
