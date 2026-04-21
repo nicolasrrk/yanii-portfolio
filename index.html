@@ -605,20 +605,6 @@ footer {
   font-size: 0.83rem; color: var(--muted);
   margin-bottom: 1.5rem; line-height: 1.5;
 }
-.auth-tabs {
-  display: flex; gap: 0; margin-bottom: 1.5rem;
-  border: 1px solid rgba(30,42,122,0.18); border-radius: var(--r); overflow: hidden;
-}
-.auth-tab {
-  flex: 1; padding: 0.55rem 1rem;
-  background: transparent; border: none; cursor: pointer;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700; font-size: 0.85rem;
-  letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--muted); transition: all 0.2s;
-}
-.auth-tab.active { background: #1e2a7a; color: #fff; }
-
 .auth-form { display: flex; flex-direction: column; gap: 0.85rem; }
 .auth-form input {
   background: #ffffff; border: 1px solid rgba(30,42,122,0.18);
@@ -994,10 +980,7 @@ body.admin-logged .work-card-admin-btns { display: flex; }
     <button class="auth-modal-close" id="auth-modal-close">✕</button>
     <h3 id="auth-modal-title">ACCESO ADMIN</h3>
     <p class="auth-sub" id="auth-modal-sub">Iniciá sesión para gestionar los trabajos.</p>
-    <div class="auth-tabs" id="auth-tabs">
-      <button class="auth-tab active" data-tab="login">Ingresar</button>
-      <button class="auth-tab" data-tab="register">Registrarse</button>
-    </div>
+
     <div class="auth-form" id="auth-form">
       <input type="email" id="auth-email" placeholder="tu@email.com" autocomplete="email">
       <input type="password" id="auth-password" placeholder="Contraseña" autocomplete="current-password">
@@ -1194,7 +1177,6 @@ cargarTrabajos();
    ════════════════════════════════════════════════════════════ */
 const authOverlay   = document.getElementById('auth-modal-overlay');
 const authModalClose= document.getElementById('auth-modal-close');
-const authTabs      = document.getElementById('auth-tabs');
 const authEmail     = document.getElementById('auth-email');
 const authPassword  = document.getElementById('auth-password');
 const authMsg       = document.getElementById('auth-msg');
@@ -1207,7 +1189,6 @@ const authLogoutBtn = document.getElementById('auth-logout-btn');
 const navAdminBtn   = document.getElementById('nav-admin-btn');
 const addWorkPanel  = document.getElementById('add-work-panel');
 
-let authMode = 'login'; // 'login' | 'register'
 let currentUser = null;
 
 function openAuthModal() {
@@ -1225,14 +1206,12 @@ function closeAuthModal() {
 function updateAuthModal() {
   if (currentUser) {
     document.getElementById('auth-form').style.display = 'none';
-    authTabs.style.display = 'none';
     authLoggedPanel.style.display = 'block';
     authLoggedEmail.textContent = '✅ Sesión activa: ' + currentUser.email;
     document.getElementById('auth-modal-title').textContent = 'ADMINISTRADOR';
     document.getElementById('auth-modal-sub').textContent = 'Tenés acceso para gestionar los trabajos.';
   } else {
     document.getElementById('auth-form').style.display = 'flex';
-    authTabs.style.display = 'flex';
     authLoggedPanel.style.display = 'none';
     document.getElementById('auth-modal-title').textContent = 'ACCESO ADMIN';
     document.getElementById('auth-modal-sub').textContent = 'Iniciá sesión para gestionar los trabajos.';
@@ -1258,19 +1237,7 @@ navAdminBtn.addEventListener('click', openAuthModal);
 authModalClose.addEventListener('click', closeAuthModal);
 authOverlay.addEventListener('click', e => { if (e.target === authOverlay) closeAuthModal(); });
 
-/* Tabs login/register */
-authTabs.querySelectorAll('.auth-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    authTabs.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    authMode = tab.dataset.tab;
-    authBtnText.textContent = authMode === 'login' ? 'Ingresar' : 'Registrarse';
-    authMsg.className = 'auth-msg';
-    authMsg.textContent = '';
-  });
-});
-
-/* Submit login/register */
+/* Submit login */
 authSubmitBtn.addEventListener('click', async () => {
   const email = authEmail.value.trim();
   const password = authPassword.value.trim();
@@ -1285,19 +1252,11 @@ authSubmitBtn.addEventListener('click', async () => {
   authMsg.textContent = '';
 
   try {
-    let result;
-    if (authMode === 'login') {
-      result = await supabase.auth.signInWithPassword({ email, password });
-    } else {
-      result = await supabase.auth.signUp({ email, password });
-    }
+    const result = await supabase.auth.signInWithPassword({ email, password });
 
     if (result.error) {
       authMsg.className = 'auth-msg error';
       authMsg.textContent = '❌ ' + traducirError(result.error.message);
-    } else if (authMode === 'register' && !result.data?.session) {
-      authMsg.className = 'auth-msg success';
-      authMsg.textContent = '✅ ¡Registro exitoso! Revisá tu email para confirmar tu cuenta.';
     } else {
       currentUser = result.data.user || result.data.session?.user;
       updateNavBtn();
