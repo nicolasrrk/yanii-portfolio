@@ -765,7 +765,6 @@ body.admin-logged .work-card-admin-btns { display: flex; }
   <div class="nav-overlay" id="nav-overlay"></div>
   <div class="nav-right">
     <ul class="nav-links" id="nav-links" role="menu">
-      <li role="menuitem"><a href="#servicios">Servicios</a></li>
       <li role="menuitem"><a href="#trabajos">Trabajos</a></li>
       <li role="menuitem"><a href="#sobre-mi">Sobre Mí</a></li>
       <li role="menuitem"><a href="#contacto" class="nav-cta">Contacto</a></li>
@@ -1009,27 +1008,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const STORAGE_BUCKET    = 'trabajos-imagenes';                     
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/* ════════════════════════════════════════════════════════════
-   ▶  TRABAJOS ESTÁTICOS (fallback / iniciales)
-   ════════════════════════════════════════════════════════════ */
-const trabajosEstaticos = [
-  {
-    titulo: "Tablero Residencial",
-    categoria: "Electricidad",
-    localizacion: "Resistencia, 2024",
-    descripcion: "Renovación completa del tablero eléctrico con llaves termomagnéticas y diferencial de 25A. Materiales de primera calidad.",
-    imagen: "https://res.cloudinary.com/dt0yo5iyq/image/upload/v1772884794/Foto-portada-2023-07-17T094449.118_rh1imb.jpg"
-  },
-  {
-    titulo: "Sistema LED Exterior",
-    categoria: "Iluminación",
-    localizacion: "Fontana, 2023",
-    descripcion: "Diseño e instalacion........",
-    imagen: "https://res.cloudinary.com/drdn599io/image/upload/v1776112387/unnamed_uxgrei.jpg"
-  }
-];
-
 /* ── Hamburger ── */
 const hamburger = document.getElementById('hamburger');
 const navLinks  = document.getElementById('nav-links');
