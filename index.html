@@ -1122,7 +1122,7 @@ function renderCards() {
   });
 }
 
-/* ── Cargar trabajos desde Supabase + estáticos ── */
+/* ── Cargar trabajos desde Supabase ── */
 async function cargarTrabajos() {
   try {
     const { data, error } = await supabase
@@ -1130,7 +1130,9 @@ async function cargarTrabajos() {
       .select('*')
       .order('created_at', { ascending: false });
 
-    const dbWorks = (error || !data) ? [] : data.map(r => ({
+    if (error) throw error;
+
+    allWorks = (data || []).map(r => ({
       id: r.id,
       titulo: r.titulo,
       categoria: r.categoria,
@@ -1139,10 +1141,8 @@ async function cargarTrabajos() {
       imagen: r.imagen_url || '',
       _fromDB: true
     }));
-
-    allWorks = [...dbWorks, ...trabajosEstaticos];
   } catch {
-    allWorks = [...trabajosEstaticos];
+    allWorks = [];
   }
   renderFilters();
   renderCards();
